@@ -1,20 +1,50 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <%@ include file="/common/global.jsp" %>
-    <title>商品列表</title>
-    <%@ include file="/common/meta.jsp" %>
-    <%@ include file="/common/include-base-styles.jsp" %>
-    <link type="text/css" rel="stylesheet" href="${ctx}/css/product.css"/>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
 </head>
 
 <body>
-<%@include file="/common/header-nav.jsp" %>
-<div class="container">
-    <div class="row">
-        <c:forEach items="${page.result}" var="product">
-            <c:set var="task" value="${leave.task }"/>
-            <c:set var="pi" value="${leave.processInstance }"/>
+    <div class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
+                    data-target=".navbar-collapse">
+                <span class="icon-bar"></span> <span class="icon-bar"></span> <span
+                    class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">小小商店</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a th:href="@{/homePage}">首页</a></li>
+                <li><a th:href="@{/product}">商品</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown" th:if="${not #strings.isEmpty(login_user)}">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        ${login_user.username}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a th:href="@{/user/logout}">登出</a></li>
+                    </ul>
+                </li>
+
+                <li class="dropdown" th:if="${not #strings.isEmpty(login_admin)}">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        ${login_admin.username}
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a th:href="${/admin/product}">后台管理</a></li>
+                        <li><a th:href="${/admin/logout}">登出</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+        <!--/.nav-collapse -->
+    </div>
+    <div class="container">
+        <div class="row" th:each="product : ${page.result}">
             <div class="col-md-3 col-sm-4 col-xs-6 text-center">
                 <a href="${ctx}/product/${product.id}"><img class="img-thumbnail" src="${ctx}${product.masterPic.url}"
                                                             style="width: 140px; height: 140px;"></a>
@@ -24,11 +54,10 @@
                 <p class="price">${product.point}</p>
 
                 <p>
-                    <a class="btn btn-info" href="${ctx}/product/${product.id}" role="button">查看</a>
+                    <a class="btn btn-info" th:href="${/product/${product.id}}" role="button">查看</a>
                     <a class="btn btn-primary addCart" productid="${product.id}" role="button">购买</a>
                 </p>
             </div>
-        </c:forEach>
     </div>
     <div class="text-center">
         <tags:pagination page="${page}" paginationSize="${page.pageSize}"/>
