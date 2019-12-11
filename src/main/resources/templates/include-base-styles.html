@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="header(title, link, style)">
+    <th:block th:if="${title == null}">
+        <title>TIMO后台</title>
+    </th:block>
+    <th:block th:if="${title != null}">
+        <title th:replace="${title}">title</title>
+    </th:block>
+
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="description" content="乞丐商城" />
+    <meta name="keywords" content="乞丐商城, SpringBoot, Jpa, Thymeleaf" />
+
+    <link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/x-icon">
+    <link rel="stylesheet" media="all" th:href="@{/css/common.css}">
+    <link rel="stylesheet" media="all" th:href="@{/bootstrap/css/bootstrap.css}">
+    <link rel="stylesheet" media="all" th:href="@{/sco/css/scojs.css}">
+    <link rel="stylesheet" media="all" th:href="@{/toastr/toastr.min.css}">
+
+    <th:block th:if="${link != null}">
+        <th:block th:replace="${link}"></th:block>
+    </th:block>
+
+    <th:block th:if="${style != null}">
+        <th:block th:replace="${style}"></th:block>
+    </th:block>
+</head>
+<body>
+</body>
+</html>
