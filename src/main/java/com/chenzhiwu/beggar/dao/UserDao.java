@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @date:2019/12/12-17 : 09
  */
 public interface UserDao extends JpaRepository<User, Long> {
+    public User getUserById(Long id);
 }

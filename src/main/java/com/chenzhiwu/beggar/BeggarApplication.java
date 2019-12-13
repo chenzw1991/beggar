@@ -6,12 +6,12 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication(scanBasePackages = "com.chenzhiwu.beggar")
+@SpringBootApplication
 //jpa dao 扫描路径
 @EnableJpaRepositories(basePackages = "com.chenzhiwu.beggar.dao")
 //实体扫描路径
 @EntityScan(basePackages = "com.chenzhiwu.beggar.pojo")
-//开启缓存注解
+////开启缓存注解
 @EnableCaching
 public class BeggarApplication {
 
