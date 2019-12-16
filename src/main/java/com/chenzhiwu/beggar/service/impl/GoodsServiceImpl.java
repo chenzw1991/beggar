@@ -1,14 +1,23 @@
 package com.chenzhiwu.beggar.service.impl;
 
+import com.chenzhiwu.beggar.common.data.PageSort;
 import com.chenzhiwu.beggar.dao.GoodsDao;
 import com.chenzhiwu.beggar.pojo.Goods;
 import com.chenzhiwu.beggar.service.GoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,5 +40,27 @@ public class GoodsServiceImpl implements GoodsService {
 
     public Goods getGoodsById(Long id){
         return goodsDao.getGoodsById(id);
+    }
+
+    public Page<Goods> getPageList(Goods goods){
+        PageRequest page = PageSort.pageRequest();
+        Specification<Goods> spec = new Specification<Goods>() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public  Predicate toPredicate(Root<Goods> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> predicates = new ArrayList<>();// 查询条件
+                Date date = new Date();
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("downshelf_time").as(Date.class), goods.getDownshelfTime()));
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("upshelf_time").as(Date.class), date));
+
+                return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
+            }
+
+        };
+        Page<Goods> list = goodsDao.findAll(spec, page);
+
+        return list;
+
     }
 }

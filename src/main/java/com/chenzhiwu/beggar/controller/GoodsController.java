@@ -1,11 +1,16 @@
 package com.chenzhiwu.beggar.controller;
 
+import com.alibaba.fastjson.JSONArray;
 import com.chenzhiwu.beggar.pojo.Goods;
 import com.chenzhiwu.beggar.pojo.User;
 import com.chenzhiwu.beggar.service.GoodsService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -59,5 +64,25 @@ public class GoodsController {
         model.addAttribute("goods", goods);
         return "goods_detail";
 
+    }
+
+    @GetMapping("/admin_goodslist")
+    public String typeList(Model model, FeedbackType fbType) {
+        ExampleMatcher matcher = ExampleMatcher.matching();
+        Example<FeedbackType> example = Example.of(fbType, matcher);
+        Page<FeedbackType> list = feedbackService.getPageTypeList(example);
+        for (FeedbackType feedbackType : list.getContent()) {
+            JSONArray names = JSONArray.parseArray(feedbackType.getNames());
+            for (Object object : names) {
+                JSONObject item=(JSONObject) object;
+                if ("zh_CN".equals(item.getString("lang"))){
+                    feedbackType.setNames(item.getString("name"));//取中文
+                    break;
+                }
+            }
+        }
+        model.addAttribute("list",list.getContent());
+        model.addAttribute("page",list);//分页依赖
+        return "/business/feedback/typelist" ;
     }
 }
