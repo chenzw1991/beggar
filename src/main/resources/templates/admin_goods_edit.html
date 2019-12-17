@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/aun/Timo">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+</head>
+<body>
+<div class="layui-form timo-compile">
+    <form id="editform" th:action="@{/feedback/typesave}" class="layui-form">
+        <input type="hidden" name="id" th:if="${info}" th:value="${info.id}"/>
+        <input type="hidden" name="names" id="names"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">名称</label>
+            <div class="layui-input-inline">
+                <div th:each="lang:${langs}" style="width:400px;">
+                    <span class="layui-form-label" th:text="${lang.value}"></span>
+                    <div class="layui-input-block">
+                        <input class="langname layui-input" type="text" th:attr="lang=${lang.key}" maxlength="20"  lay-verify="required">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item timo-finally">
+            <button class="layui-btn" lay-submit lay-filter="formDemo"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+<script type="text/javascript" th:src="@{/js/plugins/jquery-3.3.1.min.js}"></script>
+<script th:inline="javascript">
+    $(function(){
+        var url =[[@{/feedback/typesave}]];
+        var names = [[${info?.names}]];
+        names = JSON.parse(names);
+        console.log(url);
+        console.log(names);
+        if (names) {
+            //初始化
+            $(".langname").each(function(j,e){
+                console.log(j);
+                for(i=0;i<names.length;i++) {
+                    console.log(i+" "+names[i].lang + ' '+ $(e).attr("lang"));
+                    if ($(e).attr("lang") == names[i].lang){
+                        $(e).val(names[i].name);
+                        console.log("break");
+                        break;
+                    }
+                }
+            });
+        }
+        //Demo
+        layui.use('form', function(){
+            var form = layui.form;
+            //监听提交
+            form.on('submit(formDemo)', function(data){
+                var langArr = [];
+                $(".langname").each(function(i, e){
+                    var tmp 	= new Object();
+                    tmp.lang	= $(e).attr("lang");
+                    tmp.name	= $(e).val();
+                    langArr.push(tmp);
+                });
+                console.log(langArr);
+                $("#names").val(JSON.stringify(langArr));
+
+                $.ajax({
+                    url		: url,
+                    data	: $("#editform").serialize(),
+                    type	: "post",
+                    dataType: "json",
+                    success: function (res) {
+                        console.log(res);
+                        if(res.code == 200){
+                            window.parent.location.reload();
+                        }else{
+                            alert(res.msg);
+                        }
+                    }
+                });
+                return false;
+            });
+        });
+
+
+        /*
+        $("#editform").submit(function(event){
+            event.preventDefault();
+            console.log("submit");
+
+            return false;
+            var langArr = [];
+            $(".langname").each(function(i, e){
+                var tmp 	= new Object();
+                tmp.lang	= $(e).attr("lang");
+                tmp.name	= $(e).val();
+                langArr.push(tmp);
+            });
+            console.log(langArr);
+            $("#names").val(JSON.stringify(langArr));
+            $.ajax({
+                url		: url,
+                data	: $("#editform").serialize(),
+                type	: "post",
+                dataType: "json",
+                success: function (res) {
+                    console.log(res);
+                    if(res.code == 0){
+                        window.location.reload();
+                    }else{
+                        alert(res.msg);
+                    }
+                }
+            });
+        });*/
+
+    });
+</script>
+</body>
+</html>

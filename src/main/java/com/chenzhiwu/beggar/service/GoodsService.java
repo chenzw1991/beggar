@@ -16,8 +16,7 @@ public interface GoodsService {
 
     /**
      * 获取分页产品列表数据
-     * @param example 查询实例
      * @return 返回分页数据
      */
-    public Page<Goods> getPageList(Goods feedback);
+    public Page<Goods> getPageList();
 }

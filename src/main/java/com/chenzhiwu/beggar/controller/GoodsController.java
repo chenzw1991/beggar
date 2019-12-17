@@ -1,13 +1,11 @@
 package com.chenzhiwu.beggar.controller;
 
-import com.alibaba.fastjson.JSONArray;
+import com.chenzhiwu.beggar.pojo.BeggarUser;
 import com.chenzhiwu.beggar.pojo.Goods;
-import com.chenzhiwu.beggar.pojo.User;
 import com.chenzhiwu.beggar.service.GoodsService;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +22,7 @@ import java.util.List;
  */
 @RequestMapping("/goods")
 @Controller
+@Slf4j
 public class GoodsController {
     @Autowired
     private GoodsService goodsService;
@@ -31,9 +30,9 @@ public class GoodsController {
     private final Integer take = 50;
 
     @RequestMapping(value="/to_list/{pageId}")
-    public String getGoodsPage(Model model, User user,
+    public String getGoodsPage(Model model, BeggarUser beggarUser,
                                HttpServletRequest request, HttpServletResponse response, @PathVariable("pageId")Integer pageId){
-        model.addAttribute("user", user);
+        model.addAttribute("beggarUser", beggarUser);
         Integer skipId = pageId * take;
         //查询商品列表
         Integer havenext = 1;//是否有下一页 0 否 1是
@@ -57,9 +56,7 @@ public class GoodsController {
     }
 
     @RequestMapping(value="/to_detail/{id}")
-    public String getGoodsDetail(Model model, User user,
-                                 HttpServletRequest request, HttpServletResponse response, @PathVariable("id")Long id){
-        model.addAttribute("user", user);
+    public String getGoodsDetail(Model model,HttpServletRequest request, HttpServletResponse response, @PathVariable("id")Long id){
         Goods goods = goodsService.getGoodsById(id);
         model.addAttribute("goods", goods);
         return "goods_detail";
@@ -67,22 +64,23 @@ public class GoodsController {
     }
 
     @GetMapping("/admin_goodslist")
-    public String typeList(Model model, FeedbackType fbType) {
-        ExampleMatcher matcher = ExampleMatcher.matching();
-        Example<FeedbackType> example = Example.of(fbType, matcher);
-        Page<FeedbackType> list = feedbackService.getPageTypeList(example);
-        for (FeedbackType feedbackType : list.getContent()) {
-            JSONArray names = JSONArray.parseArray(feedbackType.getNames());
-            for (Object object : names) {
-                JSONObject item=(JSONObject) object;
-                if ("zh_CN".equals(item.getString("lang"))){
-                    feedbackType.setNames(item.getString("name"));//取中文
-                    break;
-                }
-            }
-        }
+    public String adminGoodsList(Model model) {
+        Page<Goods> list = goodsService.getPageList();
         model.addAttribute("list",list.getContent());
         model.addAttribute("page",list);//分页依赖
-        return "/business/feedback/typelist" ;
+        System.out.println(list);
+        return "admin_goods_list" ;
+    }
+
+    /**
+     * 跳转到编辑页面
+     * @description:
+     * @author: IGG
+     */
+    @GetMapping("/admin_goodsedit/{id}")
+    public String goodsEdit(@PathVariable("id") Long id, Model model) {
+        Goods goods = goodsService.getGoodsById(id);
+        model.addAttribute("info", goods);
+        return "admin_goods_edit";
     }
 }

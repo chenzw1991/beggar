@@ -6,14 +6,14 @@
 <body class="timo-layout-page">
 <div class="layui-card">
     <div class="layui-card-header timo-card-header">
-        <span><i class="fa fa-bars"></i> 反馈类型</span>
+        <span><i class="fa fa-bars"></i> 商品</span>
         <i class="layui-icon layui-icon-refresh refresh-btn"></i>
     </div>
     <div class="layui-card-body">
         <div class="layui-row timo-card-screen">
             <div class="pull-left layui-form-pane timo-search-box">
                 <div class="layui-inline">
-                    <a class="layui-btn open-popup" data-title="新增反馈类型" th:attr="data-url=@{'/feedback/typeedit/0'}"  data-size="600,330" href="javascript:;">新增</a>
+                    <a class="layui-btn open-popup" data-title="新增商品" th:attr="data-url=@{'/goods/to_add'}"  data-size="600,330" href="javascript:;">新增</a>
                 </div>
             </div>
         </div>
@@ -21,18 +21,30 @@
             <table class="layui-table timo-table timo-table-fixed">
                 <thead>
                 <tr>
-                    <th>反馈类型名称</th>
-                    <th>是否启用</th>
+                    <th>商品名称</th>
+                    <th>商品图片</th>
+                    <th>商品简述</th>
+                    <th>商品价格</th>
+                    <th>库存数量</th>
+                    <th>商品数量</th>
+                    <th>上架时间</th>
+                    <th>下架时间</th>
                     <th>操作</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="item:${list}">
-                    <td th:text="${item.names}"></td>
-                    <td th:text="${#dicts.keyValue('YESNO_STATUS', item.status)}"></td>
+                    <td th:text="${item.goodsName}"></td>
+                    <td><img th:src="@{${item.goodsImg}}" width="80" height="60"></img></td>
+                    <td th:text="${item.goodsTitle}"></td>
+                    <td th:text="${item.goodsPrice}"></td>
+                    <td th:text="${item.goodsStock}"></td>
+                    <td th:text="${item.totalStock}"></td>
+                    <td th:text="${#dates.format(item.upshelfTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:text="${#dates.format(item.downshelfTime,'yyyy-MM-dd HH:mm:ss')}"></td>
                     <td>
-                        <a class="open-popup" data-title="编辑反馈类型" th:attr="data-url=@{'/feedback/typeedit/'+${item.id}}"  data-size="600,330" href="javascript:;">编辑</a>
-                        <a href="javascript:void(0)" th:onclick="'changeStatus('+${item.id}+','+${item.status}+')'" th:text="${item.status==0}?'启用':'停用'"></a>
+                        <a class="open-popup" data-title="编辑商品" th:attr="data-url=@{'/feedback/typeedit/'+${item.id}}"  data-size="600,330" href="javascript:;">编辑</a>
+                        <a href="javascript:void(0)" th:onclick="'changeStatus('+${item.id}+','+${item.status}+')'" th:text="${item.status==0}?'上架':'下架'"></a>
                         <a href="javascript:void(0)" th:onclick= "'dataDelete('+${item.id}+')'">删除</a>
                     </td>
                 </tr>
@@ -45,7 +57,7 @@
 <script th:replace="/common/template :: script"></script>
 <script type="text/javascript" th:src="@{/js/plugins/jquery-3.3.1.min.js}"></script>
 <script>
-    var url = "[[@{/feedback/typedel}]]";
+    var url = "[[@{/goods/del}]]";
     function dataDelete(id) {
         if (!confirm("确定删除吗？"))
             return false;
@@ -70,7 +82,7 @@
         if (!confirm("确定"+msgAdd+"吗？"))
             return false;
         $.ajax({
-            url		: "[[@{/feedback/typesave}]]",
+            url		: "[[@{/goods/statusSave}]]",
             data	: {"id":id,"status":status},
             type	: "post",
             dataType: "json",

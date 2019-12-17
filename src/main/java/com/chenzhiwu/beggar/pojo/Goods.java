@@ -1,6 +1,10 @@
 package com.chenzhiwu.beggar.pojo;
 
+import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -9,7 +13,12 @@ import java.util.Date;
  */
 @Entity(name = "goods")
 @Table(name = "goods")
-public class Goods {
+@EntityListeners(AuditingEntityListener.class)
+@DynamicUpdate
+public class Goods implements Serializable {
+
+    private static final long serialVersionUID = -1L;
+
     @Id //主键策略，递增
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "id")
@@ -41,6 +50,9 @@ public class Goods {
 
     @Column(name = "total_stock")
     private Integer totalStock;
+
+    @Column(name = "status")
+    private Integer status;
 
     public Long getId() {
         return id;
@@ -120,5 +132,13 @@ public class Goods {
 
     public void setTotalStock(Integer totalStock) {
         this.totalStock = totalStock;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

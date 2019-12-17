@@ -2,9 +2,7 @@ package com.chenzhiwu.beggar;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
@@ -12,11 +10,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 //jpa dao 扫描路径
 @EnableJpaRepositories(basePackages = "com.chenzhiwu.beggar")
 //实体扫描路径
-@EntityScan(basePackages = "com.chenzhiwu.beggar")
+//@EntityScan(basePackages = "com.chenzhiwu.beggar")
 ////开启缓存注解
 @EnableCaching
 @EnableJpaAuditing // 使用jpa自动赋值
-@EnableElasticsearchRepositories(basePackages = {"com.chenzhiwu.beggar.common.elasticsearch.repository"})
+//@EnableElasticsearchRepositories(basePackages = {"com.chenzhiwu.beggar.common.elasticsearch.repository"})
 public class BeggarApplication {
 
     public static void main(String[] args) {

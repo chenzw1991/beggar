@@ -42,7 +42,7 @@ public class GoodsServiceImpl implements GoodsService {
         return goodsDao.getGoodsById(id);
     }
 
-    public Page<Goods> getPageList(Goods goods){
+    public Page<Goods> getPageList(){
         PageRequest page = PageSort.pageRequest();
         Specification<Goods> spec = new Specification<Goods>() {
             private static final long serialVersionUID = 1L;
@@ -51,8 +51,8 @@ public class GoodsServiceImpl implements GoodsService {
             public  Predicate toPredicate(Root<Goods> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicates = new ArrayList<>();// 查询条件
                 Date date = new Date();
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("downshelf_time").as(Date.class), goods.getDownshelfTime()));
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("upshelf_time").as(Date.class), date));
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("downshelfTime").as(Date.class), date));
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("upshelfTime").as(Date.class), date));
 
                 return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
             }

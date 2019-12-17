@@ -2,7 +2,7 @@ package com.chenzhiwu.beggar.controller;
 
 import com.chenzhiwu.beggar.result.CodeMsg;
 import com.chenzhiwu.beggar.result.Result;
-import com.chenzhiwu.beggar.service.UserService;
+import com.chenzhiwu.beggar.service.BeggarUserService;
 import com.chenzhiwu.beggar.vo.LoginVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,7 +20,7 @@ import javax.validation.Valid;
 @Controller
 public class LoginController {
     @Autowired
-    private UserService userService;
+    private BeggarUserService beggarUserService;
 
     @RequestMapping("/to_login")
     public String toLogin() {
@@ -33,7 +33,7 @@ public class LoginController {
     @ResponseBody
     public Result<Boolean> doLogin(HttpServletResponse response, @Valid LoginVo loginVo) {//0代表成功
         //参数检验成功之后，登录
-        CodeMsg cm=userService.login(response,loginVo);
+        CodeMsg cm= beggarUserService.login(response,loginVo);
         if(cm.getCode()==0) {
             return Result.success(true);
         }else {
