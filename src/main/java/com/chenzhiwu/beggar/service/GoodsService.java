@@ -19,4 +19,8 @@ public interface GoodsService {
      * @return 返回分页数据
      */
     public Page<Goods> getPageList();
+
+    public void saveGoods(Goods goods);
+
+    public void deleteGoods(Long id);
 }

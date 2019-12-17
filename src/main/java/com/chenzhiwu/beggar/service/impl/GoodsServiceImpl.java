@@ -63,4 +63,12 @@ public class GoodsServiceImpl implements GoodsService {
         return list;
 
     }
+
+    public void saveGoods(Goods goods) {
+       goodsDao.save(goods);
+    }
+
+    public void deleteGoods(Long id) {
+        goodsDao.deleteById(id);
+    }
 }

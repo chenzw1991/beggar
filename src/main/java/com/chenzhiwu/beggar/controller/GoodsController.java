@@ -1,5 +1,8 @@
 package com.chenzhiwu.beggar.controller;
 
+import com.chenzhiwu.beggar.common.utils.ResultVoUtil;
+import com.chenzhiwu.beggar.common.vo.ResultVo;
+import com.chenzhiwu.beggar.component.actionLog.annotation.EntityParam;
 import com.chenzhiwu.beggar.pojo.BeggarUser;
 import com.chenzhiwu.beggar.pojo.Goods;
 import com.chenzhiwu.beggar.service.GoodsService;
@@ -8,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -82,5 +83,25 @@ public class GoodsController {
         Goods goods = goodsService.getGoodsById(id);
         model.addAttribute("info", goods);
         return "admin_goods_edit";
+    }
+
+    /**
+     * 编辑类型
+     * @description:
+     * @author: IGG cmq
+     * @return
+     */
+    @PostMapping("/save")
+    @ResponseBody
+    public ResultVo GoodsSave( @EntityParam Goods goods) {
+        goodsService.saveGoods(goods);
+        return ResultVoUtil.SAVE_SUCCESS;
+    }
+
+    @PostMapping("/del")
+    @ResponseBody
+    public ResultVo typeDelete(Long id) {
+        goodsService.deleteGoods(id);
+        return ResultVoUtil.SAVE_SUCCESS;
     }
 }

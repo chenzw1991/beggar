@@ -43,7 +43,7 @@
                     <td th:text="${#dates.format(item.upshelfTime,'yyyy-MM-dd HH:mm:ss')}"></td>
                     <td th:text="${#dates.format(item.downshelfTime,'yyyy-MM-dd HH:mm:ss')}"></td>
                     <td>
-                        <a class="open-popup" data-title="编辑商品" th:attr="data-url=@{'/feedback/typeedit/'+${item.id}}"  data-size="600,330" href="javascript:;">编辑</a>
+                        <a class="open-popup" data-title="编辑商品" th:attr="data-url=@{'/goods/admin_goodsedit/'+${item.id}}"  data-size="600,330" href="javascript:;">编辑</a>
                         <a href="javascript:void(0)" th:onclick="'changeStatus('+${item.id}+','+${item.status}+')'" th:text="${item.status==0}?'上架':'下架'"></a>
                         <a href="javascript:void(0)" th:onclick= "'dataDelete('+${item.id}+')'">删除</a>
                     </td>
