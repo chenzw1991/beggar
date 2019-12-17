@@ -148,7 +148,7 @@
     layui.use('upload', function(){
         var $ = layui.jquery,upload = layui.upload;
         //普通图片上传
-        var uploadInst = upload.render({elem: '#cover_btn', field:"coverimg", url: "/upload/image",
+        var uploadInst = upload.render({elem: '#cover_btn', field:"image", url: "/upload/image",
             before: function(obj){
                 //预读本地文件示例，不支持ie8
                 obj.preview(function(index, file, result){
