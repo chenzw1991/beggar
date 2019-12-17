@@ -46,4 +46,16 @@ public class ProjectProperties {
             return enabled;
         }
     }
+
+    public boolean isCaptchaOpen() {
+        return captchaOpen;
+    }
+
+    public void setCaptchaOpen(boolean captchaOpen) {
+        this.captchaOpen = captchaOpen;
+    }
+
+    public void setXxs(Xxs xxs) {
+        this.xxs = xxs;
+    }
 }

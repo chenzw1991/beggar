@@ -1,5 +1,6 @@
 package com.chenzhiwu.beggar.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.chenzhiwu.beggar.common.data.PageSort;
 import com.chenzhiwu.beggar.dao.GoodsDao;
 import com.chenzhiwu.beggar.pojo.Goods;
@@ -11,9 +12,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -65,7 +66,8 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     public void saveGoods(Goods goods) {
-       goodsDao.save(goods);
+        goodsDao.save(goods);
+        System.out.println("goods"+ JSON.toJSONString(goods)) ;
     }
 
     public void deleteGoods(Long id) {
