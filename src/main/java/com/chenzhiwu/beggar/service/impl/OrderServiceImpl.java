@@ -68,6 +68,7 @@ public class OrderServiceImpl implements OrderService {
         orderInfo.setCreateDate(new Date());
         orderInfo.setGoodsCount(1);
         orderInfo.setGoodsId(goods.getId());
+        orderInfo.setGoodsName(goods.getGoodsName());
         //价格
         orderInfo.setGoodsPrice(goods.getGoodsPrice());
         orderInfo.setOrderChannel(1);

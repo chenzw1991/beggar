@@ -31,6 +31,7 @@ import java.util.List;
 public class GoodsServiceImpl implements GoodsService {
     @Autowired
     private GoodsDao goodsDao;
+
     @Autowired
     private OrderService orderService;
 
