@@ -39,7 +39,7 @@
 <div>
     <form id="editform" th:action="@{/goods/save}" class="layui-form" onsubmit="return false">
         <input type="hidden" name="id" th:if="${info}" th:value="${info.id}"/>
-        <input type="hidden" name="cover" id="goodsImg" th:value="${info.goodsImg}"/>
+        <input type="hidden" name="goodsImg" id="goodsImg" th:value="${info.goodsImg}"/>
         <div class="layui-form-item">
             <label class="layui-form-label required">商品名称</label>
             <div class="layui-input-inline">
@@ -106,6 +106,11 @@
             </div>
         </div>
 
+        <div class="item-line">
+            <label class="item-label required">详情说明</label>
+            <textarea class="layui-textarea" name="goodsDetail" id="goodsDetail" lay-verify="content" th:text="${info.goodsDetail}"></textarea>
+        </div>
+
         <div class="layui-form-item timo-finally">
             <button class="layui-btn" lay-submit lay-filter="formDemo"><i class="fa fa-check-circle"></i> 保存</button>
             <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
@@ -143,6 +148,30 @@
                 return false;
             });
         });
+
+        layui.use(['layedit', 'form'], function(){
+            var form = layui.form;
+            var layedit = layui.layedit;
+            layedit.set({
+                uploadImage: {
+                    url: '/layUITextarea/upload'
+                    ,type: 'post'
+                }
+            });
+            var index = layedit.build('goodsDetail',{
+                height: 350
+            }); //建立编辑器
+            //提交时把值同步到文本域中
+            form.verify({
+                //content富文本域中的lay-verify值
+                content: function(value) {
+                    return layedit.sync(index);
+                }
+            });
+        });
+
+
+
     });
 
     layui.use('upload', function(){

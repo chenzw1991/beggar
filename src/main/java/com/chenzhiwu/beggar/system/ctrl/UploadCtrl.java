@@ -7,7 +7,6 @@ import com.chenzhiwu.beggar.component.fileUpload.FileUpload;
 import com.chenzhiwu.beggar.component.fileUpload.enums.UploadResultEnum;
 import com.chenzhiwu.beggar.modules.system.domain.Upload;
 import com.chenzhiwu.beggar.modules.system.service.UploadService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author 小懒虫
@@ -38,7 +39,10 @@ public class UploadCtrl {
         // 创建Upload实体对象
         Upload upload = FileUpload.getFile(multipartFile, "/images");
         try {
-            return saveImage(multipartFile, upload);
+            ResultVo resultVo = saveImage(multipartFile, upload);
+            Upload resultUpload = (Upload)resultVo.getData();
+            System.out.println(resultUpload.getPath());
+            return resultVo;
         } catch (IOException | NoSuchAlgorithmException e) {
             return ResultVoUtil.error("上传图片失败");
         }
@@ -54,7 +58,9 @@ public class UploadCtrl {
         // 创建Upload实体对象
         Upload upload = FileUpload.getFile(multipartFile, "/picture");
         try {
-            return saveImage(multipartFile, upload);
+            ResultVo resultVo = saveImage(multipartFile, upload);
+            System.out.println(upload.getPath());
+            return resultVo;
         } catch (IOException | NoSuchAlgorithmException e) {
             return ResultVoUtil.error("上传头像失败");
         }
@@ -86,5 +92,32 @@ public class UploadCtrl {
         uploadService.save(upload);
         return ResultVoUtil.success(upload);
     }
+
+    @PostMapping("/layUITextarea/upload")
+    @ResponseBody
+    public Object upload(MultipartFile file) {
+
+        // 创建Upload实体对象
+        Upload upload = FileUpload.getFile(file, "/images");
+        try {
+
+            ResultVo resultVo = saveImage(file, upload);
+            Upload resultUpload = (Upload)resultVo.getData();
+            System.out.println(resultUpload.getPath());
+            Map<String,Object> map = new HashMap<String,Object>();
+            Map<String,Object> map2 = new HashMap<String,Object>();
+            map.put("code", 0);	//0表示上传成功
+            map.put("msg","上传成功"); //提示消息
+            //src返回图片上传成功后的下载路径
+            map2.put("src", resultUpload.getPath());
+            map2.put("title", resultUpload.getName());
+            map.put("data", map2);
+            return map;
+        } catch (IOException | NoSuchAlgorithmException e) {
+            return ResultVoUtil.error("上传图片失败");
+        }
+
+    }
+
 
 }

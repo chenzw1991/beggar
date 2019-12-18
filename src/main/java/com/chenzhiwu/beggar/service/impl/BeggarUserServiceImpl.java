@@ -7,10 +7,10 @@ import com.chenzhiwu.beggar.service.BeggarUserService;
 import com.chenzhiwu.beggar.util.MD5Util;
 import com.chenzhiwu.beggar.vo.LoginVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 
 /**
@@ -23,12 +23,11 @@ public class BeggarUserServiceImpl implements BeggarUserService {
     private BeggarUserDao beggarUserDao;
 
     @Transactional
-    @CachePut(value = "redisCache", key = "'user_'+#id")
     public BeggarUser getUserById(Long id){
         return beggarUserDao.getUserById(id);
     }
 
-    public CodeMsg login(HttpServletResponse response, LoginVo loginVo) {
+    public CodeMsg login(HttpServletRequest request, LoginVo loginVo) {
         if(loginVo==null) {
             return CodeMsg.SERVER_ERROR;
         }
@@ -53,9 +52,9 @@ public class BeggarUserServiceImpl implements BeggarUserService {
         if(!tmppass.equals(dbPass)) {
             return CodeMsg.PASSWORD_ERROR;
         }
-        //生成cookie
-//        String token = UUIDUtil.uuid();
-//        addCookie(user,token,response);
+        //将用户的id存入session
+        HttpSession session = request.getSession();
+        session.setAttribute("userMobile", Long.parseLong(mobile));
         return CodeMsg.SUCCESS;
 
     }

@@ -28,7 +28,7 @@ public class CodeMsg {
     //订单模块异常
     public static CodeMsg ORDER_NOT_EXIST=new CodeMsg(500410,"订单不存在!");
     //秒杀模块异常
-    public static CodeMsg MIAOSHA_OVER_ERROR=new CodeMsg(500500,"商品秒杀完毕，库存不足!");
+    public static CodeMsg MIAOSHA_OVER_ERROR=new CodeMsg(500500,"商品库存不足!");
     public static CodeMsg REPEATE_MIAOSHA=new CodeMsg(500500,"不能重复秒杀!");
 
     public CodeMsg(int code,String msg) {

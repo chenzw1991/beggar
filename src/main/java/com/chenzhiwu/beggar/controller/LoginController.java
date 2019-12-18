@@ -9,7 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 /**
@@ -31,9 +31,9 @@ public class LoginController {
     //使用JSR303校验
     @RequestMapping("/do_login")//作为异步操作
     @ResponseBody
-    public Result<Boolean> doLogin(HttpServletResponse response, @Valid LoginVo loginVo) {//0代表成功
+    public Result<Boolean> doLogin(HttpServletRequest request, @Valid LoginVo loginVo) {//0代表成功
         //参数检验成功之后，登录
-        CodeMsg cm= beggarUserService.login(response,loginVo);
+        CodeMsg cm= beggarUserService.login(request,loginVo);
         if(cm.getCode()==0) {
             return Result.success(true);
         }else {

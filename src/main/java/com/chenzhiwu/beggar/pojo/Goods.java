@@ -1,7 +1,9 @@
 package com.chenzhiwu.beggar.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -43,9 +45,13 @@ public class Goods implements Serializable {
     private Integer goodsStock;
 
     @Column(name = "upshelf_time")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date upshelfTime;
 
     @Column(name = "downshelf_time")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date downshelfTime;
 
     @Column(name = "total_stock")

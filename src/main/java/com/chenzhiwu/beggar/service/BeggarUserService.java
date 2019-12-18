@@ -4,7 +4,7 @@ import com.chenzhiwu.beggar.pojo.BeggarUser;
 import com.chenzhiwu.beggar.result.CodeMsg;
 import com.chenzhiwu.beggar.vo.LoginVo;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author:IGG
@@ -12,5 +12,5 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface BeggarUserService {
     public BeggarUser getUserById(Long id);
-    public CodeMsg login(HttpServletResponse response, LoginVo loginVo);
+    public CodeMsg login(HttpServletRequest request, LoginVo loginVo);
 }

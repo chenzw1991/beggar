@@ -3,8 +3,11 @@ package com.chenzhiwu.beggar.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.chenzhiwu.beggar.common.data.PageSort;
 import com.chenzhiwu.beggar.dao.GoodsDao;
+import com.chenzhiwu.beggar.pojo.BeggarUser;
 import com.chenzhiwu.beggar.pojo.Goods;
+import com.chenzhiwu.beggar.pojo.OrderInfo;
 import com.chenzhiwu.beggar.service.GoodsService;
+import com.chenzhiwu.beggar.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +21,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,6 +31,8 @@ import java.util.List;
 public class GoodsServiceImpl implements GoodsService {
     @Autowired
     private GoodsDao goodsDao;
+    @Autowired
+    private OrderService orderService;
 
     @Transactional
 //    @CachePut(value = "redisCache", key = "'goodspage_'+#skip+'_'+#take")
@@ -51,9 +55,9 @@ public class GoodsServiceImpl implements GoodsService {
             @Override
             public  Predicate toPredicate(Root<Goods> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicates = new ArrayList<>();// 查询条件
-                Date date = new Date();
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("downshelfTime").as(Date.class), date));
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("upshelfTime").as(Date.class), date));
+//                Date date = new Date();
+//                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("downshelfTime").as(Date.class), date));
+//                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("upshelfTime").as(Date.class), date));
 
                 return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
             }
@@ -68,9 +72,19 @@ public class GoodsServiceImpl implements GoodsService {
     public void saveGoods(Goods goods) {
         goodsDao.save(goods);
         System.out.println("goods"+ JSON.toJSONString(goods)) ;
+        return;
     }
+
 
     public void deleteGoods(Long id) {
         goodsDao.deleteById(id);
+    }
+
+    @Transactional
+    public OrderInfo buyGoods(BeggarUser beggarUser, Goods goods) {
+        //减库存
+        goodsDao.reduceStock(goods.getId());
+        //生成订单
+        return orderService.createOrder(beggarUser, goods);
     }
 }

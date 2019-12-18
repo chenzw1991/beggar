@@ -26,9 +26,9 @@
 			<td th:text="${goods.goodsTitle}"></td>
 			<td th:text="${goods.goodsPrice}"></td>
 			<td th:text="${goods.goodsStock}"></td>
-			<!-- <td><a th:href="'/goods/to_detail/'+${goods.id}">详情</a></td> -->
+			 <td><a th:href="'/goods/to_detail/'+${goods.id}">详情</a></td>
 			<!-- 直接请求静态页面 -->
-			<td><a th:href="'/goods_detail.htm?goodsId='+${goods.id}">详情</a></td>
+			<!--<td><a th:href="'/goods_detail.html?goodsId='+${goods.id}">详情</a></td>-->
 		</tr>
 		</table>
 		<ul class="pager">
