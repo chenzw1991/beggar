@@ -26,6 +26,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -129,7 +130,8 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     public void updateShelfTime(Long id, Date upshelfTime, Date downshelfTime) {
-        goodsDao.updateShelfTime(id, upshelfTime, downshelfTime);
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        goodsDao.updateShelfTime(id, formatter.format(upshelfTime), formatter.format(downshelfTime));
         return;
     }
 

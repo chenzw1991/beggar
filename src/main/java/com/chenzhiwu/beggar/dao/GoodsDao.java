@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -32,5 +31,5 @@ public interface GoodsDao extends JpaRepository<Goods, Long> , JpaSpecificationE
     //更新上下架时间
     @Modifying
     @Query(nativeQuery = true, value = "update goods m set m.upshelf_time=?2,m.downshelf_time=?3 where m.id=?1")
-    public void updateShelfTime(Long id, Date upshelfTime, Date downshelfTime);
+    public void updateShelfTime(Long id, String upshelfTime, String downshelfTime);
 }

@@ -4,6 +4,10 @@
 <head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
 </head>
 <body class="timo-layout-page">
+<ul class="layui-nav" lay-filter="">
+    <li class="layui-nav-item layui-this"><a href="">商品列表</a></li>
+    <li class="layui-nav-item"><a href="">订单列表</a></li>
+</ul>
 <div class="layui-card">
     <div class="layui-card-header timo-card-header">
         <span><i class="fa fa-bars"></i> 商品</span>
@@ -57,15 +61,13 @@
 <script th:replace="/common/template :: script"></script>
 <script type="text/javascript" th:src="@{/js/plugins/jquery-3.3.1.min.js}"></script>
 <script>
-    var url = "[[@{/goods/del}]]";
     function dataDelete(id) {
         if (!confirm("确定删除吗？"))
             return false;
+        var url = "/goods/del/" + id;
         $.ajax({
             url		: url,
-            data	: {"id":id},
-            type	: "post",
-            dataType: "json",
+            type	: "get",
             success: function (res) {
                 console.log(res);
                 if(res.code == 200){
@@ -97,6 +99,12 @@
             }
         });
     }
+
+    layui.use('element', function(){
+        var element = layui.element;
+
+        //…
+    });
 </script>
 </body>
 </html>

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -160,7 +161,7 @@ public class GoodsController {
     /**
      * 编辑类型
      * @description:
-     * @author: IGG cmq
+     * @author: IGG
      * @return
      */
     @PostMapping("/save")
@@ -171,29 +172,38 @@ public class GoodsController {
         return ResultVoUtil.SAVE_SUCCESS;
     }
 
-    @PostMapping("/del")
+    @GetMapping("/del/{id}")
     @ResponseBody
-    public ResultVo typeDelete(Long id) {
+    public ResultVo goodsDelete(@PathVariable("id")Long id) {
         goodsService.deleteGoods(id);
         return ResultVoUtil.SAVE_SUCCESS;
     }
 
     /**
-     * 编辑类型
+     * 快速上下架
      * @description:商品上下架
      * @author: IGG
      * @return
      */
-    @PostMapping("/shelf/{id}/{status}")
+    @GetMapping("/shelf/{id}/{status}")
+    @ResponseBody
     public ResultVo Goodshelf( @PathVariable("id") Long id, @PathVariable("status") Long status) {
+        System.out.println("id="+id);
+        System.out.println("status="+status);
         Goods goods = goodsService.getGoodsById(id);
         Date dateNow = new Date();
         if(status == 0) {
             goods.setDownshelfTime(dateNow);
         } else {
             goods.setUpshelfTime(dateNow);
+            Calendar curr = Calendar.getInstance();
+            curr.set(Calendar.YEAR,curr.get(Calendar.YEAR)+1); //增加一年
+            Date dateF=curr.getTime();
+            goods.setDownshelfTime(dateF);
         }
-        goodsService.updateShelfTime(id, goods.getUpshelfTime(), goods.getDownshelfTime());
+        //后续再考虑优化只更新上下架时间字段
+//        goodsService.updateShelfTime(id, goods.getUpshelfTime(), goods.getDownshelfTime());
+        goodsService.saveGoods(goods);
         return ResultVoUtil.SAVE_SUCCESS;
     }
 }
