@@ -5,6 +5,7 @@ import com.chenzhiwu.beggar.pojo.Goods;
 import com.chenzhiwu.beggar.pojo.OrderInfo;
 import org.springframework.data.domain.Page;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,4 +28,8 @@ public interface GoodsService {
     public void deleteGoods(Long id);
     //购买商品
     public OrderInfo buyGoods(BeggarUser beggarUser, Goods goods);
+
+    public List<Goods> fuzzyQueryGoodsNamePage(String goodsName, Integer page, Integer pageSize);
+
+    public void updateShelfTime(Long id, Date upshelfTime, Date downshelfTime);
 }

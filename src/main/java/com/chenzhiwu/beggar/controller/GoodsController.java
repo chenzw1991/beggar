@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -122,6 +123,17 @@ public class GoodsController {
     @GetMapping("/admin_goodslist")
     public String adminGoodsList(Model model) {
         Page<Goods> list = goodsService.getPageList();
+
+        //设置上下架状态
+        Date dateNow = new Date();
+        for (Goods item : list) {
+            //默认下架状态
+            item.setStatus(0);
+            //上架状态
+            if(item.getUpshelfTime().before(dateNow)  && dateNow.before(item.getDownshelfTime()) ){
+                item.setStatus(1);
+            }
+        }
         model.addAttribute("list",list.getContent());
         model.addAttribute("page",list);//分页依赖
         System.out.println(list);
@@ -135,7 +147,12 @@ public class GoodsController {
      */
     @GetMapping("/admin_goodsedit/{id}")
     public String goodsEdit(@PathVariable("id") Long id, Model model) {
-        Goods goods = goodsService.getGoodsById(id);
+        if(id != 0) {
+            Goods goods = goodsService.getGoodsById(id);
+            model.addAttribute("info", goods);
+            return "admin_goods_edit";
+        }//编辑
+        Goods goods = new Goods();
         model.addAttribute("info", goods);
         return "admin_goods_edit";
     }
@@ -158,6 +175,25 @@ public class GoodsController {
     @ResponseBody
     public ResultVo typeDelete(Long id) {
         goodsService.deleteGoods(id);
+        return ResultVoUtil.SAVE_SUCCESS;
+    }
+
+    /**
+     * 编辑类型
+     * @description:商品上下架
+     * @author: IGG
+     * @return
+     */
+    @PostMapping("/shelf/{id}/{status}")
+    public ResultVo Goodshelf( @PathVariable("id") Long id, @PathVariable("status") Long status) {
+        Goods goods = goodsService.getGoodsById(id);
+        Date dateNow = new Date();
+        if(status == 0) {
+            goods.setDownshelfTime(dateNow);
+        } else {
+            goods.setUpshelfTime(dateNow);
+        }
+        goodsService.updateShelfTime(id, goods.getUpshelfTime(), goods.getDownshelfTime());
         return ResultVoUtil.SAVE_SUCCESS;
     }
 }

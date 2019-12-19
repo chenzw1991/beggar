@@ -2,8 +2,9 @@ package com.chenzhiwu.beggar.pojo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.hibernate.annotations.DynamicUpdate;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -23,12 +24,14 @@ public class Goods implements Serializable {
 
     @Id //主键策略，递增
     @GeneratedValue(strategy= GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
+    @Field(type = FieldType.Text, analyzer = "ik_max_word")
     @Column(name = "goods_name")
     private String goodsName;
 
+    @Field(type = FieldType.Text, analyzer = "ik_max_word")
     @Column(name = "goods_title")
     private String goodsTitle;
 
@@ -45,12 +48,12 @@ public class Goods implements Serializable {
     private Integer goodsStock;
 
     @Column(name = "upshelf_time")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date upshelfTime;
 
     @Column(name = "downshelf_time")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date downshelfTime;
 

@@ -3,15 +3,21 @@ package com.chenzhiwu.beggar.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.chenzhiwu.beggar.common.data.PageSort;
 import com.chenzhiwu.beggar.dao.GoodsDao;
+import com.chenzhiwu.beggar.esdao.GoodsEsDao;
 import com.chenzhiwu.beggar.pojo.BeggarUser;
 import com.chenzhiwu.beggar.pojo.Goods;
+import com.chenzhiwu.beggar.pojo.GoodsEs;
 import com.chenzhiwu.beggar.pojo.OrderInfo;
 import com.chenzhiwu.beggar.service.GoodsService;
 import com.chenzhiwu.beggar.service.OrderService;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.sort.SortBuilders;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +27,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,6 +38,9 @@ import java.util.List;
 public class GoodsServiceImpl implements GoodsService {
     @Autowired
     private GoodsDao goodsDao;
+
+    @Autowired
+    private GoodsEsDao goodsEsDao;
 
     @Autowired
     private OrderService orderService;
@@ -71,7 +81,15 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     public void saveGoods(Goods goods) {
-        goodsDao.save(goods);
+        goodsDao.saveAndFlush(goods);
+        GoodsEs goodsEs = new GoodsEs();
+        goodsEs.setId(goods.getId());
+        goodsEs.setGoodsName(goods.getGoodsName());
+        goodsEs.setGoodsTitle(goods.getGoodsTitle());
+        goodsEs.setDownshelfTime(goods.getDownshelfTime());
+        goodsEs.setUpshelfTime(goods.getUpshelfTime());
+        goodsEs.setStatus(goods.getStatus());
+        goodsEsDao.save(goodsEs);
         System.out.println("goods"+ JSON.toJSONString(goods)) ;
         return;
     }
@@ -79,6 +97,7 @@ public class GoodsServiceImpl implements GoodsService {
 
     public void deleteGoods(Long id) {
         goodsDao.deleteById(id);
+        goodsEsDao.deleteById(id);
     }
 
     @Transactional
@@ -88,4 +107,31 @@ public class GoodsServiceImpl implements GoodsService {
         //生成订单
         return orderService.createOrder(beggarUser, goods);
     }
+
+    public List<Goods> fuzzyQueryGoodsNamePage(String goodsName, Integer page, Integer pageSize) {
+        // 构建查询条件
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
+        // 添加基本分词查询
+        queryBuilder.withQuery(QueryBuilders.termQuery("goodsName", goodsName));
+        //排序id
+        queryBuilder.withSort(SortBuilders.fieldSort("").order(SortOrder.ASC));
+
+        // 分页：
+        queryBuilder.withPageable(PageRequest.of(page,pageSize));
+
+        // 搜索，获取结果id
+        List<Long> idList = new ArrayList<>();
+        Page<GoodsEs> items = goodsEsDao.search(queryBuilder.build());
+        for (GoodsEs item : items) {
+            idList.add(item.getId());
+        }
+        return goodsDao.batchGetGoodsByIdList(idList);
+    }
+
+    public void updateShelfTime(Long id, Date upshelfTime, Date downshelfTime) {
+        goodsDao.updateShelfTime(id, upshelfTime, downshelfTime);
+        return;
+    }
+
+
 }

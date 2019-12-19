@@ -76,7 +76,28 @@ public class OrderServiceImpl implements OrderService {
         orderInfo.setOrderStatus(0);
         //用户id
         orderInfo.setUserId(beggarUser.getId());
-        orderDao.save(orderInfo);
+        orderDao.saveAndFlush(orderInfo);
         return orderInfo;
+    }
+
+    public Page<OrderInfo> getPageList() {
+        PageRequest page = PageSort.pageRequest();
+        Specification<OrderInfo> spec = new Specification<OrderInfo>() {
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public  Predicate toPredicate(Root<OrderInfo> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> predicates = new ArrayList<>();// 查询条件
+//                Date date = new Date();
+//                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("downshelfTime").as(Date.class), date));
+//                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("upshelfTime").as(Date.class), date));
+
+                return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
+            }
+
+        };
+        Page<OrderInfo> list = orderDao.findAll(spec, page);
+
+        return list;
     }
 }

@@ -15,4 +15,10 @@ public interface OrderService {
     public Page<OrderInfo> getOrderInfoByUinPageList(Long userId);
 
     public OrderInfo createOrder(BeggarUser beggarUser, Goods goods);
+
+    /**
+     * 获取分页订单列表数据
+     * @return 返回分页数据
+     */
+    public Page<OrderInfo> getPageList();
 }

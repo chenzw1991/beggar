@@ -93,16 +93,16 @@
         <div class="layui-form-item">
             <label class="layui-form-label required">上架时间</label>
             <div class="layui-input-inline">
-                <input type="text" name="upshelfTime" class="layui-input" th:value="${info.upshelfTime}" required lay-verify="required">
-
+                <!--<input type="text" name="upshelfTime" class="layui-input" th:value="${info.upshelfTime}" required lay-verify="required">-->
+                <input name="upshelfTime" class="layui-input"  lay-verify="required" style="width: 200px" id = "upshelfTime" th:value = "${#dates.format(info.upshelfTime,'yyyy-MM-dd HH:mm:ss')}">
             </div>
         </div>
 
         <div class="layui-form-item">
             <label class="layui-form-label required">下架时间</label>
             <div class="layui-input-inline">
-                <input type="text" name="downshelfTime" class="layui-input" th:value="${info.downshelfTime}" required lay-verify="required">
-
+                <!--<input type="text" name="downshelfTime" class="layui-input" th:value="${info.downshelfTime}" required lay-verify="required">-->
+                <input name="downshelfTime" class="layui-input"  lay-verify="required" style="width: 200px" id = "downshelfTime" th:value = "${#dates.format(info.downshelfTime,'yyyy-MM-dd HH:mm:ss')}">
             </div>
         </div>
 
@@ -170,6 +170,21 @@
             });
         });
 
+        layui.use('laydate', function(){
+            var laydate = layui.laydate;
+
+            //执行一个laydate实例
+            laydate.render({ elem: '#upshelfTime' //指定元素
+                ,type: 'datetime',
+                trigger: 'click'
+            });
+
+            laydate.render({ elem: '#downshelfTime' //指定元素
+                ,type: 'datetime',
+                trigger: 'click'
+            });
+        });
+
 
 
     });
@@ -197,5 +212,10 @@
             }
         });
     });
+
+
+
+
+
 </script>
 </body>

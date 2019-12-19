@@ -13,7 +13,7 @@
         <div class="layui-row timo-card-screen">
             <div class="pull-left layui-form-pane timo-search-box">
                 <div class="layui-inline">
-                    <a class="layui-btn open-popup" data-title="新增商品" th:attr="data-url=@{'/goods/to_add'}"  data-size="600,330" href="javascript:;">新增</a>
+                    <a class="layui-btn open-popup" data-title="新增商品" th:attr="data-url=@{'/goods/admin_goodsedit/0'}"  data-size="600,330" href="javascript:;">新增</a>
                 </div>
             </div>
         </div>
@@ -78,14 +78,15 @@
     }
     function changeStatus(id, flag) {
         status = flag == 1 ? 0 : 1;
-        msgAdd = flag == 1 ? "停用" : "启用";
+        msgAdd = flag == 1 ? "下架" : "上架";
         if (!confirm("确定"+msgAdd+"吗？"))
             return false;
+        console.log(id);
+        console.log(status);
+        var urltmp = "/goods/shelf/" + id + "/" + status;
         $.ajax({
-            url		: "[[@{/goods/statusSave}]]",
-            data	: {"id":id,"status":status},
-            type	: "post",
-            dataType: "json",
+            url		: urltmp,
+            type	: "get",
             success: function (res) {
                 console.log(res);
                 if(res.code == 200){
