@@ -75,6 +75,14 @@
         </div>
 
         <div class="layui-form-item">
+            <label class="layui-form-label required">秒杀价格</label>
+            <div class="layui-input-inline">
+                <input type="text" name="msGoodsPrice" class="layui-input" th:value="${info.msGoodsPrice}" required lay-verify="required">
+
+            </div>
+        </div>
+
+        <div class="layui-form-item">
             <label class="layui-form-label required">库存数量</label>
             <div class="layui-input-inline">
                 <input type="text" name="goodsStock" class="layui-input" th:value="${info.goodsStock}" required lay-verify="required">

@@ -3,11 +3,9 @@ package com.chenzhiwu.beggar.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.chenzhiwu.beggar.common.data.PageSort;
 import com.chenzhiwu.beggar.dao.GoodsDao;
+import com.chenzhiwu.beggar.dao.MiaoshaGoodsDao;
 import com.chenzhiwu.beggar.esdao.GoodsEsDao;
-import com.chenzhiwu.beggar.pojo.BeggarUser;
-import com.chenzhiwu.beggar.pojo.Goods;
-import com.chenzhiwu.beggar.pojo.GoodsEs;
-import com.chenzhiwu.beggar.pojo.OrderInfo;
+import com.chenzhiwu.beggar.pojo.*;
 import com.chenzhiwu.beggar.service.GoodsService;
 import com.chenzhiwu.beggar.service.OrderService;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -45,6 +43,9 @@ public class GoodsServiceImpl implements GoodsService {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private MiaoshaGoodsDao miaoshaGoodsDao;
 
     @Transactional
 //    @CachePut(value = "redisCache", key = "'goodspage_'+#skip+'_'+#take")
@@ -132,6 +133,31 @@ public class GoodsServiceImpl implements GoodsService {
     public void updateShelfTime(Long id, Date upshelfTime, Date downshelfTime) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         goodsDao.updateShelfTime(id, formatter.format(upshelfTime), formatter.format(downshelfTime));
+        return;
+    }
+
+    public List<Goods> getMsGoodsList(){
+        return goodsDao.getMsGoodsList();
+    }
+
+    public MiaoshaGoods getMsInfoByGoodId(Long goodId) {
+        return miaoshaGoodsDao.getMsInfoByGoodId(goodId);
+    }
+
+    public void saveMsGoods(MiaoshaGoods miaoshaGoods) {
+        Goods goods = goodsDao.getGoodsById(miaoshaGoods.getGoodsId());
+        goods.setIsMs(1);
+        goods.setMsGoodsPrice(miaoshaGoods.getMiaoshaPrice());
+        goodsDao.save(goods);
+        miaoshaGoodsDao.saveAndFlush(miaoshaGoods);
+        return;
+    }
+
+    public void delMsInfoByGoodId(Long goodId) {
+        Goods goods = goodsDao.getGoodsById(goodId);
+        goods.setIsMs(0);
+        goodsDao.save(goods);
+        miaoshaGoodsDao.delMsInfoByGoodId(goodId);
         return;
     }
 

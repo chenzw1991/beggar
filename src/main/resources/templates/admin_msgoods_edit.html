@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:mo="https://gitee.com/aun/Timo">
+<head th:replace="/common/template :: header(~{::title},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/lib/zTree_v3/css/zTreeStyle/zTreeStyle.css}" type="text/css">
+</head>
+<style>
+    .item-line {
+        display: flex;
+        width: 500px;
+        margin: 4px 0px;
+    }
+    .item-label {
+        width: 100px;
+    }
+    .layui-input-block {
+        position: relative;
+    }
+    .word {
+        position: absolute;
+        right: 10px;
+        bottom: 8px;
+        color: #aaa;
+        font-size: 12px;
+    }
+    .item-line {
+        display: flex;
+        width: 500px;
+        margin: 4px 0px;
+    }
+    .item-label {
+        width: 100px;
+    }
+    .upload_preview{
+        max-width:500px;
+    }
+</style>
+<body class="timo-layout-page">
+<div>
+    <form id="editform" th:action="@{/goods/mssave}" class="layui-form" onsubmit="return false">
+        <input type="hidden" name="id" th:if="${info}" th:value="${info.id}"/>
+        <input type="hidden" name="goodsId" th:if="${info}" th:value="${info.goodsId}"/>
+        <div class="layui-form-item">
+            <label class="layui-form-label required">秒杀价格</label>
+            <div class="layui-input-inline">
+                <input type="text" name="miaoshaPrice" class="layui-input" th:if="${info}" th:value="${info.miaoshaPrice}" required lay-verify="required">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">秒杀开始时间</label>
+            <div class="layui-input-inline">
+                <!--<input type="text" name="upshelfTime" class="layui-input" th:value="${info.upshelfTime}" required lay-verify="required">-->
+                <input name="startDate" class="layui-input"  lay-verify="required" style="width: 200px" id = "startDate" th:if="${info}" th:value = "${#dates.format(info.startDate,'yyyy-MM-dd HH:mm:ss')}">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label required">秒杀结束时间</label>
+            <div class="layui-input-inline">
+                <input name="endDate" class="layui-input"  lay-verify="required" style="width: 200px" id = "endDate" th:if="${info}" th:value = "${#dates.format(info.endDate,'yyyy-MM-dd HH:mm:ss')}">
+            </div>
+        </div>
+
+        <div class="layui-form-item timo-finally">
+            <button class="layui-btn" lay-submit lay-filter="formDemo"><i class="fa fa-check-circle"></i> 保存</button>
+            <button class="layui-btn btn-secondary close-popup"><i class="fa fa-times-circle"></i> 关闭</button>
+        </div>
+    </form>
+</div>
+<script th:replace="/common/template :: script"></script>
+<script type="text/javascript" th:src="@{/js/plugins/jquery-3.3.1.min.js}"></script>
+<script th:inline="javascript">
+    $(function(){
+        //Demo
+        layui.use('form', function(){
+            var form = layui.form;
+            //监听提交
+            form.on('submit(formDemo)', function(data){
+                var msGoods = JSON.stringify(data.field);
+                layer.msg(msGoods);
+                console.log(msGoods);
+                $.ajax({
+                    url		: "/goods/mssave",
+                    data	: msGoods,
+                    type	: 'post',
+                    contentType: "application/json", //必须这样写
+                    dataType:"json",
+
+                    success: function (res) {
+                        console.log(res);
+                        if(res.code == 200){
+                            window.parent.location.reload();
+                        }else{
+                            alert(res.msg);
+                        }
+                    }
+                });
+                return false;
+            });
+        });
+
+        layui.use('laydate', function(){
+            var laydate = layui.laydate;
+
+            //执行一个laydate实例
+            laydate.render({ elem: '#startDate' //指定元素
+                ,type: 'datetime',
+                trigger: 'click'
+            });
+
+            laydate.render({ elem: '#endDate' //指定元素
+                ,type: 'datetime',
+                trigger: 'click'
+            });
+        });
+
+
+
+    });
+
+</script>
+</body>

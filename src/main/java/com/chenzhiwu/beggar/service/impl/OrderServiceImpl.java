@@ -1,9 +1,11 @@
 package com.chenzhiwu.beggar.service.impl;
 
 import com.chenzhiwu.beggar.common.data.PageSort;
+import com.chenzhiwu.beggar.dao.MiaoshaGoodsDao;
 import com.chenzhiwu.beggar.dao.OrderDao;
 import com.chenzhiwu.beggar.pojo.BeggarUser;
 import com.chenzhiwu.beggar.pojo.Goods;
+import com.chenzhiwu.beggar.pojo.MiaoshaGoods;
 import com.chenzhiwu.beggar.pojo.OrderInfo;
 import com.chenzhiwu.beggar.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,8 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderDao orderDao;
+
+    private MiaoshaGoodsDao miaoshaGoodsDao;
 
     public void saveOrderInfo(OrderInfo orderInfo){
         orderDao.save(orderInfo);
@@ -62,6 +66,7 @@ public class OrderServiceImpl implements OrderService {
      * @return
      */
     public OrderInfo createOrder(BeggarUser beggarUser, Goods goods) {
+        Date date = new Date();
         //1.生成order_info
         OrderInfo orderInfo=new OrderInfo();
         orderInfo.setDeliveryAddrId(0L);//long类型 private Long deliveryAddrId;   L
@@ -71,6 +76,11 @@ public class OrderServiceImpl implements OrderService {
         orderInfo.setGoodsName(goods.getGoodsName());
         //价格
         orderInfo.setGoodsPrice(goods.getGoodsPrice());
+        if(goods.getIsMs() > 0) {
+            MiaoshaGoods miaoshaGoods = miaoshaGoodsDao.getMsInfoByGoodId(goods.getId());
+            if(miaoshaGoods.getEndDate().after(date) && miaoshaGoods.getStartDate().before(date))
+                orderInfo.setGoodsPrice(goods.getMsGoodsPrice());
+        }
         orderInfo.setOrderChannel(1);
         //订单状态  ---0-新建未支付  1-已支付  2-已发货  3-已收货
         orderInfo.setOrderStatus(0);

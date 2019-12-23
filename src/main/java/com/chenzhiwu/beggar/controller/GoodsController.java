@@ -2,9 +2,7 @@ package com.chenzhiwu.beggar.controller;
 
 import com.chenzhiwu.beggar.common.utils.ResultVoUtil;
 import com.chenzhiwu.beggar.common.vo.ResultVo;
-import com.chenzhiwu.beggar.pojo.BeggarUser;
-import com.chenzhiwu.beggar.pojo.Goods;
-import com.chenzhiwu.beggar.pojo.OrderInfo;
+import com.chenzhiwu.beggar.pojo.*;
 import com.chenzhiwu.beggar.result.CodeMsg;
 import com.chenzhiwu.beggar.service.BeggarUserService;
 import com.chenzhiwu.beggar.service.GoodsService;
@@ -79,7 +77,7 @@ public class GoodsController {
             return "login";
         }
 
-
+        session.setAttribute("userMobile", userMobile);
         Goods goods = goodsService.getGoodsById(id);
         model.addAttribute("userMobile", userMobile);
         model.addAttribute("goods", goods);
@@ -206,4 +204,159 @@ public class GoodsController {
         goodsService.saveGoods(goods);
         return ResultVoUtil.SAVE_SUCCESS;
     }
+
+    /**
+     * 是否秒杀
+     * @description:商品上下架
+     * @author: IGG
+     * @return
+     */
+    @GetMapping("/ms/{id}/{status}")
+    @ResponseBody
+    public ResultVo GoodMs( @PathVariable("id") Long id, @PathVariable("status") Integer status) {
+        Goods goods = goodsService.getGoodsById(id);
+        if(goods.getMsGoodsPrice() <= 0) {
+            return ResultVoUtil.error("请设置秒杀价格");
+        }
+        goods.setIsMs(status);
+        goodsService.saveGoods(goods);
+        return ResultVoUtil.SAVE_SUCCESS;
+    }
+
+    @RequestMapping(value="/to_mslist")
+    public String getMsGoodsList(Model model, HttpServletRequest request){
+        //得到session对象
+        HttpSession session = request.getSession(false);
+        if(session==null){
+            //没有登录成功，跳转到登录页面
+            return "login";
+        }
+        //取出会话数据
+        Long userMobile = (Long)session.getAttribute("userMobile");
+        if(userMobile==null){
+            //没有登录成功，跳转到登录页面
+            return "login";
+        }
+        session.setAttribute("userMobile", userMobile);
+        List<Goods> goodsList= goodsService.getMsGoodsList();
+        model.addAttribute("goodsList", goodsList);
+        return "goods_mslist";
+    }
+
+    @GetMapping(value="/to_msdetail/{id}")
+    public String getMsGoodsDetail(Model model,HttpServletRequest request, @PathVariable("id")Long id){
+        //得到session对象
+        HttpSession session = request.getSession(false);
+        if(session==null){
+            //没有登录成功，跳转到登录页面
+            return "login";
+        }
+        //取出会话数据
+        Long userMobile = (Long)session.getAttribute("userMobile");
+        if(userMobile==null){
+            //没有登录成功，跳转到登录页面
+            return "login";
+        }
+        Goods goods = goodsService.getGoodsById(id);
+        MiaoshaGoods miaoshaGoods = goodsService.getMsInfoByGoodId(id);
+        //既然是秒杀，还要传入秒杀开始时间，结束时间等信息
+        long start=miaoshaGoods.getStartDate().getTime();
+        long end=miaoshaGoods.getEndDate().getTime();
+        long now=System.currentTimeMillis();
+        //秒杀状态量
+        int status=0;
+        //开始时间倒计时
+        int remailSeconds=0;
+        //查看当前秒杀状态
+        if(now<start) {//秒杀还未开始，--->倒计时
+            status=0;
+            remailSeconds=(int) ((start-now)/1000);  //毫秒转为秒
+        }else if(now>end){ //秒杀已经结束
+            status=2;
+            remailSeconds=-1;  //毫秒转为秒
+        }else {//秒杀正在进行
+            status=1;
+            remailSeconds=0;  //毫秒转为秒
+        }
+
+        session.setAttribute("userMobile", userMobile);
+        model.addAttribute("userMobile", userMobile);
+        model.addAttribute("status", status);
+        model.addAttribute("remailSeconds", remailSeconds);
+
+        session.setAttribute("userMobile", userMobile);
+        model.addAttribute("userMobile", userMobile);
+        model.addAttribute("goods", goods);
+        return "goods_msdetail";
+
+    }
+
+    /**
+     * 跳转到秒杀编辑页面
+     * @description:
+     * @author: IGG
+     */
+    @GetMapping("/admin_msedit/{id}")
+    public String goodsMsEdit(@PathVariable("id") Long id, Model model) {
+        Date date = new Date();
+        MiaoshaGoods miaoshaGoods = new MiaoshaGoods();
+        miaoshaGoods.setId(id);
+        miaoshaGoods.setGoodsId(id);
+        miaoshaGoods.setStartDate(date);
+        miaoshaGoods.setEndDate(date);
+        model.addAttribute("info", miaoshaGoods);
+        return "admin_msgoods_edit";
+    }
+
+    /**
+     * 编辑类型
+     * @description:
+     * @author: IGG
+     * @return
+     */
+    @PostMapping("/mssave")
+    @ResponseBody
+    public ResultVo goodsMsSave( @RequestBody MiaoshaGoods miaoshaGoods) {
+        System.out.println(miaoshaGoods);
+        goodsService.saveMsGoods(miaoshaGoods);
+        return ResultVoUtil.SAVE_SUCCESS;
+    }
+
+    /**
+     * 取消秒杀
+     * @description:
+     * @author: IGG
+     * @return
+     */
+    @GetMapping("/msdel/{goodsId}")
+    @ResponseBody
+    public ResultVo goodsMsDel(@PathVariable("goodsId") Long goodsId) {
+        goodsService.deleteGoods(goodsId);
+        return ResultVoUtil.SAVE_SUCCESS;
+    }
+
+    @PostMapping(value="/fuzzyQuery")
+    public String fuzzyQueryGoodsNamePage(Model model, SearchGoodsReqVo searchGoodsReqVos){
+        //查询商品列表
+        Integer havenext = 1;//是否有下一页 0 否 1是
+        List<Goods> goodsList= goodsService.fuzzyQueryGoodsNamePage(searchGoodsReqVos.getSearchName() , searchGoodsReqVos.getSearchPageid(), take);
+        if(goodsList.size() < take){
+            havenext = 0;
+        }
+        else {
+            List<Goods> tmpList= goodsService.fuzzyQueryGoodsNamePage(searchGoodsReqVos.getSearchName() , searchGoodsReqVos.getSearchPageid() + 1, take);
+            if(tmpList.size() == 0){
+                havenext = 0;
+            }
+        }
+        System.out.println("searchGoodsReqVos" + searchGoodsReqVos);
+        System.out.println("goodssize:" + goodsList.size());
+        System.out.println("take:" + take);
+        model.addAttribute("goodsList", goodsList);
+        model.addAttribute("pagid", searchGoodsReqVos.getSearchPageid());
+        model.addAttribute("havenext", havenext);
+        model.addAttribute("name", searchGoodsReqVos.getSearchName());
+        return "fuzzyquery_goods_list";
+    }
+
 }

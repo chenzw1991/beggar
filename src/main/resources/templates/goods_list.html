@@ -16,6 +16,35 @@
 
 </head>
 <body>
+	<div class="jumbotron text-center" style="margin-bottom:0">
+		<h1>欢迎来到乞丐商城</h1>
+		<p>这里应有尽有，希望您购物愉快！</p>
+	</div>
+	<nav class="navbar navbar-inverse">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">乞丐商城</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+				<ul class="nav navbar-nav">
+					<li class="active"><a th:href="@{'/goods/to_list/0'}">主页</a></li>
+					<li><a th:href="@{'/goods/to_mslist'}">秒杀特价商品</a></li>
+				</ul>
+				<form th:action="@{/goods/fuzzyQuery}"  method="post" class="navbar-form navbar-left" rol="search">
+					<input type="hidden" name="searchPageid" th:value="0"/>
+					<div class="form-group">
+						<input type="text" name="searchName" class="form-control" placeholder="请输入关键词" />
+					</div>
+					<button type="submit" class="btn btn-default">搜索</button>
+				</form>
+			</div>
+		</div>
+	</nav>
 	<div class="panel panel-default">
 		<div class="panel-heading">商品列表</div>
 		<table class="table" id="goodslist">
@@ -26,7 +55,7 @@
 			<td th:text="${goods.goodsTitle}"></td>
 			<td th:text="${goods.goodsPrice}"></td>
 			<td th:text="${goods.goodsStock}"></td>
-			 <td><a th:href="'/goods/to_detail/'+${goods.id}">详情</a></td>
+			<td><a th:href="'/goods/to_detail/'+${goods.id}">详情</a></td>
 			<!-- 直接请求静态页面 -->
 			<!--<td><a th:href="'/goods_detail.html?goodsId='+${goods.id}">详情</a></td>-->
 		</tr>

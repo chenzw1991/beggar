@@ -63,6 +63,13 @@ public class Goods implements Serializable {
     @Column(name = "status")
     private Integer status;
 
+    //是否参与秒杀
+    @Column(name = "isms")
+    private Integer isMs;
+    //秒杀价格
+    @Column(name = "msgoods_price")
+    private Double msGoodsPrice;
+
     public Long getId() {
         return id;
     }
@@ -149,5 +156,21 @@ public class Goods implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getIsMs() {
+        return isMs;
+    }
+
+    public void setIsMs(Integer isMs) {
+        this.isMs = isMs;
+    }
+
+    public Double getMsGoodsPrice() {
+        return msGoodsPrice;
+    }
+
+    public void setMsGoodsPrice(Double msGoodsPrice) {
+        this.msGoodsPrice = msGoodsPrice;
     }
 }

@@ -2,6 +2,7 @@ package com.chenzhiwu.beggar.service;
 
 import com.chenzhiwu.beggar.pojo.BeggarUser;
 import com.chenzhiwu.beggar.pojo.Goods;
+import com.chenzhiwu.beggar.pojo.MiaoshaGoods;
 import com.chenzhiwu.beggar.pojo.OrderInfo;
 import org.springframework.data.domain.Page;
 
@@ -32,4 +33,12 @@ public interface GoodsService {
     public List<Goods> fuzzyQueryGoodsNamePage(String goodsName, Integer page, Integer pageSize);
 
     public void updateShelfTime(Long id, Date upshelfTime, Date downshelfTime);
+
+    public List<Goods> getMsGoodsList();
+
+    MiaoshaGoods getMsInfoByGoodId(Long goodId);
+
+    public void saveMsGoods(MiaoshaGoods miaoshaGoods);
+
+    public void delMsInfoByGoodId(Long goodId);
 }

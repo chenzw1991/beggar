@@ -16,7 +16,7 @@ import java.util.List;
 public interface GoodsDao extends JpaRepository<Goods, Long> , JpaSpecificationExecutor<Goods> {
     public Goods getGoodsById(Long id);
 
-    @Query("from goods where current_date > upshelf_time and current_date < downshelf_time order by id")
+    @Query(nativeQuery = true, value = "select * from goods where now() > upshelf_time and now() < downshelf_time order by id")
     public List<Goods> getGoodsPage(Pageable pageable);
 
     //库存减1
@@ -32,4 +32,8 @@ public interface GoodsDao extends JpaRepository<Goods, Long> , JpaSpecificationE
     @Modifying
     @Query(nativeQuery = true, value = "update goods m set m.upshelf_time=?2,m.downshelf_time=?3 where m.id=?1")
     public void updateShelfTime(Long id, String upshelfTime, String downshelfTime);
+
+    @Query(nativeQuery = true, value = "select * from goods where isms=1 and now() > upshelf_time and now() < downshelf_time order by id")
+    public List<Goods> getMsGoodsList();
+
 }

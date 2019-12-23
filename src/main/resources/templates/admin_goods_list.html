@@ -5,8 +5,8 @@
 </head>
 <body class="timo-layout-page">
 <ul class="layui-nav" lay-filter="">
-    <li class="layui-nav-item layui-this"><a href="">商品列表</a></li>
-    <li class="layui-nav-item"><a href="">订单列表</a></li>
+    <li class="layui-nav-item layui-this"><a th:href="@{'/goods/admin_goodslist'}">商品列表</a></li>
+    <li class="layui-nav-item"><a th:href="@{'/order/admin_orderlist'}">订单列表</a></li>
 </ul>
 <div class="layui-card">
     <div class="layui-card-header timo-card-header">
@@ -29,6 +29,7 @@
                     <th>商品图片</th>
                     <th>商品简述</th>
                     <th>商品价格</th>
+                    <th>秒杀价格</th>
                     <th>库存数量</th>
                     <th>商品数量</th>
                     <th>上架时间</th>
@@ -42,6 +43,7 @@
                     <td><img th:src="@{${item.goodsImg}}" width="80" height="60"></img></td>
                     <td th:text="${item.goodsTitle}"></td>
                     <td th:text="${item.goodsPrice}"></td>
+                    <td th:text="${item.msGoodsPrice}"></td>
                     <td th:text="${item.goodsStock}"></td>
                     <td th:text="${item.totalStock}"></td>
                     <td th:text="${#dates.format(item.upshelfTime,'yyyy-MM-dd HH:mm:ss')}"></td>
@@ -50,6 +52,13 @@
                         <a class="open-popup" data-title="编辑商品" th:attr="data-url=@{'/goods/admin_goodsedit/'+${item.id}}"  data-size="600,330" href="javascript:;">编辑</a>
                         <a href="javascript:void(0)" th:onclick="'changeStatus('+${item.id}+','+${item.status}+')'" th:text="${item.status==0}?'上架':'下架'"></a>
                         <a href="javascript:void(0)" th:onclick= "'dataDelete('+${item.id}+')'">删除</a>
+                        <span th:if="${item.isMs==0 || item.isMs==null}">
+                            <a class="open-popup" data-title="参与秒杀" th:attr="data-url=@{'/goods/admin_msedit/'+${item.id}}"  data-size="600,330" href="javascript:;">参与秒杀</a>
+                        </span>
+                        <span th:if="${item.isMs==1}">
+                            <a href="javascript:void(0)" th:onclick="'delMs('+${item.id}+')'">取消秒杀</a>
+                        </span>
+                    <!--<a href="javascript:void(0)" th:onclick="'changeMsStatus('+${item.id}+','+${item.isMs}+')'" th:text="${item.isMs==0 || item.isMs==null}?'参与秒杀':'取消秒杀'"></a>-->
                     </td>
                 </tr>
                 </tbody>
@@ -78,26 +87,24 @@
             }
         });
     }
-    function changeStatus(id, flag) {
-        status = flag == 1 ? 0 : 1;
-        msgAdd = flag == 1 ? "下架" : "上架";
-        if (!confirm("确定"+msgAdd+"吗？"))
-            return false;
+    function delMs(id) {
         console.log(id);
-        console.log(status);
-        var urltmp = "/goods/shelf/" + id + "/" + status;
+        if (!confirm("确定取消秒杀吗？"))
+            return false;
+        var setMsUrl = "/goods/msdel/" + id;
         $.ajax({
-            url		: urltmp,
+            url		: setMsUrl,
             type	: "get",
             success: function (res) {
                 console.log(res);
-                if(res.code == 200){
+                    if(res.code == 200){
                     window.location.reload();
                 }else{
                     alert(res.msg);
                 }
             }
         });
+
     }
 
     layui.use('element', function(){

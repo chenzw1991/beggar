@@ -1,5 +1,7 @@
 package com.chenzhiwu.beggar.pojo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -21,13 +23,12 @@ public class MiaoshaGoods {
     @Column(name = "miaosha_price")
     private Double miaoshaPrice;
 
-    @Column(name = "stock_count")
-    private Integer stockCount;
-
     @Column(name = "start_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startDate;
 
     @Column(name = "end_date")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endDate;
 
     public Double getMiaoshaPrice() {
@@ -47,12 +48,6 @@ public class MiaoshaGoods {
     }
     public void setGoodsId(Long goodsId) {
         this.goodsId = goodsId;
-    }
-    public Integer getStockCount() {
-        return stockCount;
-    }
-    public void setStockCount(Integer stockCount) {
-        this.stockCount = stockCount;
     }
     public Date getStartDate() {
         return startDate;
