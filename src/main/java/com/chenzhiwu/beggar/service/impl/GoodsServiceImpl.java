@@ -91,6 +91,9 @@ public class GoodsServiceImpl implements GoodsService {
         goodsEs.setDownshelfTime(goods.getDownshelfTime());
         goodsEs.setUpshelfTime(goods.getUpshelfTime());
         goodsEs.setStatus(goods.getStatus());
+        if(goods.getStatus() == null)
+            goodsEs.setStatus(0);
+        System.out.println("goodsEs"+ JSON.toJSONString(goodsEs)) ;
         goodsEsDao.save(goodsEs);
         System.out.println("goods"+ JSON.toJSONString(goods)) ;
         return;
@@ -116,7 +119,7 @@ public class GoodsServiceImpl implements GoodsService {
         // 添加基本分词查询
         queryBuilder.withQuery(QueryBuilders.termQuery("goodsName", goodsName));
         //排序id
-        queryBuilder.withSort(SortBuilders.fieldSort("").order(SortOrder.ASC));
+        queryBuilder.withSort(SortBuilders.fieldSort("id").order(SortOrder.ASC));
 
         // 分页：
         queryBuilder.withPageable(PageRequest.of(page,pageSize));
@@ -124,9 +127,15 @@ public class GoodsServiceImpl implements GoodsService {
         // 搜索，获取结果id
         List<Long> idList = new ArrayList<>();
         Page<GoodsEs> items = goodsEsDao.search(queryBuilder.build());
+        System.out.println("page:"+page);
+        System.out.println("goodsName:"+goodsName);
+        System.out.println("pageSize:"+pageSize);
+        System.out.println("items.getTotalElements:"+items.getTotalElements());
         for (GoodsEs item : items) {
             idList.add(item.getId());
         }
+        if(idList.isEmpty())
+            return null;
         return goodsDao.batchGetGoodsByIdList(idList);
     }
 

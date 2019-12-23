@@ -25,7 +25,7 @@ public interface GoodsDao extends JpaRepository<Goods, Long> , JpaSpecificationE
     public void reduceStock(Long id);
 
     //批量查询
-    @Query(value = "select * from goods WHERE  in(?1) ORDER BY id asc",nativeQuery = true)
+    @Query(value = "select * from goods WHERE id in ?1 ",nativeQuery = true)
     List<Goods> batchGetGoodsByIdList(List<Long> idList);
 
     //更新上下架时间
