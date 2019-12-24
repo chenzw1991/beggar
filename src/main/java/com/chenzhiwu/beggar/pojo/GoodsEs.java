@@ -37,4 +37,51 @@ public class GoodsEs {
     @Field(type = FieldType.Integer)
     private Integer status;
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getGoods_name() {
+        return goods_name;
+    }
+
+    public void setGoods_name(String goods_name) {
+        this.goods_name = goods_name;
+    }
+
+    public String getGoods_title() {
+        return goods_title;
+    }
+
+    public void setGoods_title(String goods_title) {
+        this.goods_title = goods_title;
+    }
+
+    public Date getUpshelf_time() {
+        return upshelf_time;
+    }
+
+    public void setUpshelf_time(Date upshelf_time) {
+        this.upshelf_time = upshelf_time;
+    }
+
+    public Date getDownshelf_time() {
+        return downshelf_time;
+    }
+
+    public void setDownshelf_time(Date downshelf_time) {
+        this.downshelf_time = downshelf_time;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 }

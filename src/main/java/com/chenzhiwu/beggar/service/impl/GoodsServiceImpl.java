@@ -8,7 +8,9 @@ import com.chenzhiwu.beggar.esdao.GoodsEsDao;
 import com.chenzhiwu.beggar.pojo.*;
 import com.chenzhiwu.beggar.service.GoodsService;
 import com.chenzhiwu.beggar.service.OrderService;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static org.elasticsearch.index.query.QueryBuilders.fuzzyQuery;
 
 /**
  * @author:IGG
@@ -145,19 +150,30 @@ public class GoodsServiceImpl implements GoodsService {
         // 构建查询条件
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
         // 添加模糊查询
-        queryBuilder.withQuery(QueryBuilders.fuzzyQuery("goods_name", goodsName));
-        queryBuilder.withQuery(QueryBuilders.rangeQuery("upshelf_time").lt(dateString));
-        queryBuilder.withQuery(QueryBuilders.rangeQuery("downshelf_time").gt(dateString));
+        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery().must(fuzzyQuery("goods_name",goodsName))
+                .must(QueryBuilders.rangeQuery("upshelf_time").lt(dateString).gt("1900-1-1 0:0:0"))
+                .must(QueryBuilders.rangeQuery("downshelf_time").gt(dateString).lt("2999-1-1 0:0:0"));
+        NativeSearchQuery query = queryBuilder.withQuery(boolQueryBuilder).withSort(SortBuilders.fieldSort("id").order(SortOrder.ASC)).withPageable(PageRequest.of(page,pageSize)).build();
+//        queryBuilder.withQuery(QueryBuilders.fuzzyQuery("goods_name", goodsName));
+//        queryBuilder.withQuery(QueryBuilders.rangeQuery("upshelf_time").lt(dateString));
+//        queryBuilder.withQuery(QueryBuilders.rangeQuery("downshelf_time").gt(dateString));
 //        queryBuilder.withQuery(QueryBuilders.rangeQuery("goods_name", goodsName));
-        //排序id
-        queryBuilder.withSort(SortBuilders.fieldSort("id").order(SortOrder.ASC));
 
-        // 分页：
-        queryBuilder.withPageable(PageRequest.of(page,pageSize));
+        //排序id
+//        queryBuilder.withSort(SortBuilders.fieldSort("id").order(SortOrder.ASC));
+//
+//        // 分页：
+//        queryBuilder.withPageable(PageRequest.of(page,pageSize));
+
+
+        SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        searchSourceBuilder.query(boolQueryBuilder);
+        System.out.println("拼接的查询请求======");
+        System.out.println(searchSourceBuilder.toString());
 
         // 搜索，获取结果id
         List<Long> idList = new ArrayList<>();
-        Page<GoodsEs> items = goodsEsDao.search(queryBuilder.build());
+        Page<GoodsEs> items = goodsEsDao.search(query);
         System.out.println("page:"+page);
         System.out.println("goodsName:"+goodsName);
         System.out.println("pageSize:"+pageSize);
