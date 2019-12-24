@@ -40,6 +40,8 @@
     <form id="editform" th:action="@{/goods/save}" class="layui-form" onsubmit="return false">
         <input type="hidden" name="id" th:if="${info}" th:value="${info.id}"/>
         <input type="hidden" name="goodsImg" id="goodsImg" th:value="${info.goodsImg}"/>
+        <input type="hidden" name="isMs" id="isMs" th:value="${info.isMs}"/>
+        <input type="hidden" name="msGoodsPrice" id="msGoodsPrice" th:value="${info.msGoodsPrice}"/>
         <div class="layui-form-item">
             <label class="layui-form-label required">商品名称</label>
             <div class="layui-input-inline">

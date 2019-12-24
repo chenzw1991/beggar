@@ -32,7 +32,7 @@
 			</div>
 			<div class="collapse navbar-collapse" id="myNavbar">
 				<ul class="nav navbar-nav">
-					<li class="active"><a th:href="@{'/goods/to_list/0'}">主页</a></li>
+					<li class="active"><a th:href="@{'/goods/to_list/1'}">主页</a></li>
 					<li><a th:href="@{'/goods/to_mslist'}">秒杀特价商品</a></li>
 				</ul>
 				<form th:action="@{/goods/fuzzyQuery}"  method="post" class="navbar-form navbar-left" rol="search">
@@ -60,10 +60,22 @@
 			<!--<td><a th:href="'/goods_detail.html?goodsId='+${goods.id}">详情</a></td>-->
 		</tr>
 		</table>
-		<ul class="pager">
-			<li><a th:href="'/goods/to_uplist/'+${pagid}" th:if="${pagid}!=0">上一页</a></li>
-			<li><a th:href="'/goods/to_downlist/'+${pagid}" th:if="${havenext}!=0">下一页</a></li>
+		<ul class="pagination pagination-lg" >
+			<li th:if="${indexPage != 1}" th:class="${indexPage==1}?'disabled' : ''"><a th:href="@{'/goods/to_list/' + ${indexPage - 1}}">上一页</a></li>
+			<li th:if="${indexPage - 3 >=1}" ><a th:href="@{'/goods/to_list/' + ${indexPage -3 }}" th:text="${indexPage - 3}" >1</a></li>
+			<li th:if="${indexPage - 2 >=1}" ><a th:href="@{'/goods/to_list/' + ${indexPage -2 }}" th:text="${indexPage - 2}" >1</a></li>
+			<li th:if="${indexPage -1 >=1}" ><a th:href="@{'/goods/to_list/' + ${indexPage - 1}}" th:text="${indexPage - 1}" >1</a></li>
+			<li class="active"><a href="#" th:text="${indexPage}" >1</a></li>
+			<li th:if="${indexPage + 1 <=totalPage}" ><a th:href="@{'/goods/to_list/' + ${indexPage + 1}}" th:text="${indexPage + 1}" >1</a></li>
+			<li th:if="${indexPage + 2 <=totalPage}" ><a th:href="@{'/goods/to_list/' + ${indexPage + 2}}" th:text="${indexPage + 2}" >1</a></li>
+			<li th:if="${indexPage + 3 <=totalPage}" ><a th:href="@{'/goods/to_list/' + ${indexPage + 3}}" th:text="${indexPage + 3}" >1</a></li>
+
+			<li th:if="${indexPage != totalPage}" th:class="${indexPage==totalPage}?'disabled' : ''" ><a th:href="@{'/goods/to_list/' + ${indexPage + 1}}">下一页</a></li>
 		</ul>
+		<!--<ul class="pager">-->
+			<!--<li><a th:href="'/goods/to_uplist/'+${pagid}" th:if="${pagid}!=0">上一页</a></li>-->
+			<!--<li><a th:href="'/goods/to_downlist/'+${pagid}" th:if="${havenext}!=0">下一页</a></li>-->
+		<!--</ul>-->
 	</div>
 </body>
 </html>

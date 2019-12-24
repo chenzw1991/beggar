@@ -1,5 +1,7 @@
 package com.chenzhiwu.beggar.controller;
 
+import com.chenzhiwu.beggar.common.redis.GoodsKey;
+import com.chenzhiwu.beggar.common.redis.RedisService;
 import com.chenzhiwu.beggar.common.utils.ResultVoUtil;
 import com.chenzhiwu.beggar.common.vo.ResultVo;
 import com.chenzhiwu.beggar.pojo.*;
@@ -7,11 +9,15 @@ import com.chenzhiwu.beggar.result.CodeMsg;
 import com.chenzhiwu.beggar.service.BeggarUserService;
 import com.chenzhiwu.beggar.service.GoodsService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.context.IWebContext;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,54 +40,64 @@ public class GoodsController {
     @Autowired
     private BeggarUserService beggarUserService;
 
-    private final Integer take = 50;
+    @Autowired
+    private RedisService redisService;
+
+    //注入渲染
+    @Autowired
+    ThymeleafViewResolver thymeleafViewResolver;
+
+    private final Integer take = 10;
 
     @RequestMapping(value="/to_list/{pageId}")
-    public String getGoodsPage(Model model, BeggarUser beggarUser,
-                               HttpServletRequest request, HttpServletResponse response, @PathVariable("pageId")Integer pageId){
+    public String getGoodsPage(Model model, BeggarUser beggarUser, @PathVariable("pageId")Integer pageId){
         model.addAttribute("beggarUser", beggarUser);
-        Integer skipId = pageId * take;
-        //查询商品列表
-        Integer havenext = 1;//是否有下一页 0 否 1是
-        List<Goods> goodsList= goodsService.getGoodsPage(skipId, take);
-        if(goodsList.size() < take){
-            havenext = 0;
-        }
-        else {
-            List<Goods> tmpList= goodsService.getGoodsPage(skipId + take, take);
-            if(tmpList.size() == 0){
-                havenext = 0;
-            }
-        }
-        System.out.println("goodssize:" + goodsList.size());
-        System.out.println("skipId:" + skipId);
-        System.out.println("take:" + take);
-        model.addAttribute("goodsList", goodsList);
-        model.addAttribute("pagid", pageId);
-        model.addAttribute("havenext", havenext);
+//        Integer skipId = pageId * take;
+//        //查询商品列表
+//        Integer havenext = 1;//是否有下一页 0 否 1是
+//        List<Goods> goodsList= goodsService.getGoodsPage(skipId, take);
+//        if(goodsList.size() < take){
+//            havenext = 0;
+//        }
+//        else {
+//            List<Goods> tmpList= goodsService.getGoodsPage(skipId + take, take);
+//            if(tmpList.size() == 0){
+//                havenext = 0;
+//            }
+//        }
+        Page<Goods> list = goodsService.getPageList(pageId);
+
+        model.addAttribute("goodsList", list.getContent());
+        model.addAttribute("indexPage", pageId);
+        model.addAttribute("totalPage", list.getTotalPages());
         return "goods_list";
     }
 
-    @RequestMapping(value="/to_detail/{id}")
-    public String getGoodsDetail(Model model,HttpServletRequest request, @PathVariable("id")Long id){
-        //得到session对象
-        HttpSession session = request.getSession(false);
-        if(session==null){
-            //没有登录成功，跳转到登录页面
-            return "login";
-        }
-        //取出会话数据
-        Long userMobile = (Long)session.getAttribute("userMobile");
-        if(userMobile==null){
-            //没有登录成功，跳转到登录页面
-            return "login";
-        }
+    @RequestMapping(value="/to_detail/{id}", produces = "text/html")
+    @ResponseBody
+    public String getGoodsDetail(Model model,HttpServletRequest request,HttpServletResponse response, @PathVariable("id")Long id){
 
-        session.setAttribute("userMobile", userMobile);
+        // 1.取缓存
+        // public <T> T get(KeyPrefix prefix,String key,Class<T> data)
+        String html = redisService.get(GoodsKey.getGoodsDetail, ""+id, String.class);//不同商品页面不同的详情
+        if (!StringUtils.isEmpty(html)) {
+            System.out.println("get goods detail from redis");
+            return html;
+        }
+        //缓存中没有，则将业务数据取出，放到缓存中去。
         Goods goods = goodsService.getGoodsById(id);
-        model.addAttribute("userMobile", userMobile);
         model.addAttribute("goods", goods);
-        return "goods_detail";
+
+        //手动渲染
+        IWebContext ctx =new WebContext(request,response,
+                request.getServletContext(),request.getLocale(),model.asMap());
+        html = thymeleafViewResolver.getTemplateEngine().process("goods_detail", ctx);
+        // 将渲染好的html保存至缓存
+        if (!StringUtils.isEmpty(html)) {
+            redisService.set(GoodsKey.getGoodsDetail, ""+id, html);
+        }
+        return html;//html是已经渲染好的html文件
+//        return "goods_detail";
 
     }
 
@@ -109,6 +125,16 @@ public class GoodsController {
         int  stockcount=goods.getGoodsStock();
         if(stockcount<=0) {//失败			库存至临界值1的时候，此时刚好来了加入10个线程，那么库存就会-10
             model.addAttribute("errorMessage", CodeMsg.MIAOSHA_OVER_ERROR);
+            return "buy_fail";
+        }
+        Date date = new Date();
+        if(goods.getDownshelfTime().before(date)) {
+            model.addAttribute("errorMessage", CodeMsg.GOODS_DOWNSHELF);
+            return "buy_fail";
+        }
+
+        if(goods.getUpshelfTime().after(date)) {
+            model.addAttribute("errorMessage", CodeMsg.GOODS_UPSHELF);
             return "buy_fail";
         }
 
@@ -223,40 +249,40 @@ public class GoodsController {
         return ResultVoUtil.SAVE_SUCCESS;
     }
 
-    @RequestMapping(value="/to_mslist")
-    public String getMsGoodsList(Model model, HttpServletRequest request){
-        //得到session对象
-        HttpSession session = request.getSession(false);
-        if(session==null){
-            //没有登录成功，跳转到登录页面
-            return "login";
+    @RequestMapping(value="/to_mslist", produces = "text/html")
+    @ResponseBody
+    public String getMsGoodsList(Model model, HttpServletRequest request, HttpServletResponse response){
+        // 1.取缓存
+        String html = redisService.get(GoodsKey.getMsGoodsList, "", String.class);
+        if (!StringUtils.isEmpty(html)) {
+            System.out.println("get ms goods list from redis");
+            return html;
         }
-        //取出会话数据
-        Long userMobile = (Long)session.getAttribute("userMobile");
-        if(userMobile==null){
-            //没有登录成功，跳转到登录页面
-            return "login";
-        }
-        session.setAttribute("userMobile", userMobile);
         List<Goods> goodsList= goodsService.getMsGoodsList();
         model.addAttribute("goodsList", goodsList);
-        return "goods_mslist";
+        //手动渲染
+        IWebContext ctx =new WebContext(request,response,
+                request.getServletContext(),request.getLocale(),model.asMap());
+        html = thymeleafViewResolver.getTemplateEngine().process("goods_mslist", ctx);
+        // 将渲染好的html保存至缓存
+        if (!StringUtils.isEmpty(html)) {
+            redisService.set(GoodsKey.getMsGoodsList, "", html);
+        }
+        return html;//html是已经渲染好的html文件
+//        return "goods_mslist";
     }
 
-    @GetMapping(value="/to_msdetail/{id}")
-    public String getMsGoodsDetail(Model model,HttpServletRequest request, @PathVariable("id")Long id){
+    @GetMapping(value="/to_msdetail/{id}", produces = "text/html")
+    @ResponseBody
+    public String getMsGoodsDetail(Model model,HttpServletRequest request, HttpServletResponse response, @PathVariable("id")Long id){
         //得到session对象
-        HttpSession session = request.getSession(false);
-        if(session==null){
-            //没有登录成功，跳转到登录页面
-            return "login";
+        // 1.取缓存
+        String html = redisService.get(GoodsKey.getGoodsDetail, "" + id, String.class);
+        if (!StringUtils.isEmpty(html)) {
+            System.out.println("get ms goods detail from redis");
+            return html;
         }
-        //取出会话数据
-        Long userMobile = (Long)session.getAttribute("userMobile");
-        if(userMobile==null){
-            //没有登录成功，跳转到登录页面
-            return "login";
-        }
+
         Goods goods = goodsService.getGoodsById(id);
         MiaoshaGoods miaoshaGoods = goodsService.getMsInfoByGoodId(id);
         //既然是秒杀，还要传入秒杀开始时间，结束时间等信息
@@ -279,15 +305,19 @@ public class GoodsController {
             remailSeconds=0;  //毫秒转为秒
         }
 
-        session.setAttribute("userMobile", userMobile);
-        model.addAttribute("userMobile", userMobile);
         model.addAttribute("status", status);
         model.addAttribute("remailSeconds", remailSeconds);
-
-        session.setAttribute("userMobile", userMobile);
-        model.addAttribute("userMobile", userMobile);
         model.addAttribute("goods", goods);
-        return "goods_msdetail";
+        //手动渲染
+        IWebContext ctx =new WebContext(request,response,
+                request.getServletContext(),request.getLocale(),model.asMap());
+        html = thymeleafViewResolver.getTemplateEngine().process("goods_msdetail", ctx);
+        // 将渲染好的html保存至缓存
+        if (!StringUtils.isEmpty(html)) {
+            redisService.set(GoodsKey.getMsGoodsList, "", html);
+        }
+        return html;//html是已经渲染好的html文件
+//        return "goods_msdetail";
 
     }
 

@@ -18,6 +18,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -65,6 +66,7 @@ public class OrderServiceImpl implements OrderService {
      * @param goods
      * @return
      */
+    @Transactional
     public OrderInfo createOrder(BeggarUser beggarUser, Goods goods) {
         Date date = new Date();
         //1.生成order_info
@@ -76,7 +78,7 @@ public class OrderServiceImpl implements OrderService {
         orderInfo.setGoodsName(goods.getGoodsName());
         //价格
         orderInfo.setGoodsPrice(goods.getGoodsPrice());
-        if(goods.getIsMs() > 0) {
+        if(goods.getIsMs() != null && goods.getIsMs() > 0) {
             MiaoshaGoods miaoshaGoods = miaoshaGoodsDao.getMsInfoByGoodId(goods.getId());
             if(miaoshaGoods.getEndDate().after(date) && miaoshaGoods.getStartDate().before(date))
                 orderInfo.setGoodsPrice(goods.getMsGoodsPrice());

@@ -24,6 +24,8 @@ public interface GoodsService {
      */
     public Page<Goods> getPageList();
 
+    public Page<Goods> getPageList(Integer pageID);
+
     public void saveGoods(Goods goods);
 
     public void deleteGoods(Long id);

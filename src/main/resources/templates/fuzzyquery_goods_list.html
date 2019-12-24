@@ -28,7 +28,7 @@
         </div>
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
-                <li><a th:href="@{'/goods/to_list/0'}">主页</a></li>
+                <li><a th:href="@{'/goods/to_list/1'}">主页</a></li>
                 <li><a th:href="@{'/goods/to_mslist'}">秒杀特价商品</a></li>
             </ul>
         </div>
@@ -50,9 +50,52 @@
         </tr>
     </table>
     <ul class="pager">
-        <li><a th:href="'/goods/fuzzyQuery/' + ${name} +'/' + ${pagid - 1} " th:if="${pagid}!=0">上一页</a></li>
-        <li><a th:href="'/goods/fuzzyQuery/' + ${name} + '/' + ${pagid} " th:if="${havenext}!=0">下一页</a></li>
+        <li>
+            <form name='uppageform' th:action="@{/goods/fuzzyQuery}" method='post' th:if="${pagid}!=0">
+                <input type='hidden' name='searchName' th:value="${name}"/>
+                <input type='hidden' name='searchPageid' th:value="${pagid - 1}"/>
+                <a href='javascript:document.uppageform.submit();'>上一页</a>
+            </form>
+        </li>
+        <li>
+            <form name='downpageform' th:action="@{/goods/fuzzyQuery}" method='post' th:if="${havenext}!=0">
+                <input type='hidden' name='searchName' th:value="${name}"/>
+                <input type='hidden' name='searchPageid' th:value="${pagid + 1}"/>
+                <a href='javascript:document.downpageform.submit();'>下一页</a>
+            </form>
+        </li>
+        <!--<li><a href="javascript:void(0);" id="uppage" class="determine" th:if="${pagid}!=0">上一页</a>-->
+        <!--<li><a href="javascript:void(0);" id="downpage" class="determine" th:if="${havenext}!=0">下一页</a>-->
+        <!--<li><a th:href="'/goods/fuzzyQuery/' + ${name} +'/' + ${pagid - 1} " th:if="${pagid}!=0">上一页</a></li>-->
+        <!--<li><a th:href="'/goods/fuzzyQuery/' + ${name} + '/' + ${pagid} " th:if="${havenext}!=0">下一页</a></li>-->
     </ul>
 </div>
+
+<script th:inline="javascript">
+    $(function(){
+        $("#uppage").on("click",function(event){
+            event.preventDefault();//使a自带的方法失效
+            $.ajax({
+                url:"/goods/fuzzyQuery",
+                type:"post",
+                dataType:"json",
+                data:{},
+            success:function(result){
+                if(res.code == 200){
+                    window.parent.location.reload();
+                }else{
+                    alert(res.msg);
+                }
+            },
+            error:function(){
+                alert("error!");
+            }
+        });
+    });
+
+</script>
+
 </body>
+
+
 </html>

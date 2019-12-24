@@ -30,6 +30,8 @@ public class CodeMsg {
     //秒杀模块异常
     public static CodeMsg MIAOSHA_OVER_ERROR=new CodeMsg(500500,"商品库存不足!");
     public static CodeMsg REPEATE_MIAOSHA=new CodeMsg(500500,"不能重复秒杀!");
+    public static CodeMsg GOODS_DOWNSHELF=new CodeMsg(500500,"商品已下架!");
+    public static CodeMsg GOODS_UPSHELF=new CodeMsg(500500,"商品未上架!");
 
     public CodeMsg(int code,String msg) {
         this.code=code;

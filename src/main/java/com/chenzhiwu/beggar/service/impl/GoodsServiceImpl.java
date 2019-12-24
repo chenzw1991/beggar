@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -68,9 +69,9 @@ public class GoodsServiceImpl implements GoodsService {
             @Override
             public  Predicate toPredicate(Root<Goods> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicates = new ArrayList<>();// 查询条件
-//                Date date = new Date();
-//                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("downshelfTime").as(Date.class), date));
-//                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("upshelfTime").as(Date.class), date));
+                Date date = new Date();
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("downshelfTime").as(Date.class), date));
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("upshelfTime").as(Date.class), date));
 
                 return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
             }
@@ -81,16 +82,40 @@ public class GoodsServiceImpl implements GoodsService {
         return list;
 
     }
+    public Page<Goods> getPageList(Integer pageID){
+        Sort sort = new Sort(Sort.Direction.ASC, "id");
+        PageRequest page = PageRequest.of(pageID - 1, 10, sort);
+        Specification<Goods> spec = new Specification<Goods>() {
+            private static final long serialVersionUID = 1L;
 
+            public  Predicate toPredicate(Root<Goods> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> predicates = new ArrayList<>();// 查询条件
+                System.out.println("getPageList by pageId");
+                Date date = new Date();
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("downshelfTime").as(Date.class), date));
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("upshelfTime").as(Date.class), date));
+
+                return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
+            }
+
+        };
+        Page<Goods> list = goodsDao.findAll(spec, page);
+
+        return list;
+    }
+
+    @Transactional
     public void saveGoods(Goods goods) {
         goodsDao.saveAndFlush(goods);
         GoodsEs goodsEs = new GoodsEs();
         goodsEs.setId(goods.getId());
-        goodsEs.setGoodsName(goods.getGoodsName());
-        goodsEs.setGoodsTitle(goods.getGoodsTitle());
-        goodsEs.setDownshelfTime(goods.getDownshelfTime());
-        goodsEs.setUpshelfTime(goods.getUpshelfTime());
+        goodsEs.setGoods_name(goods.getGoodsName());
+        goodsEs.setGoods_title(goods.getGoodsTitle());
+        goodsEs.setDownshelf_time(goods.getDownshelfTime());
+        goodsEs.setUpshelf_time(goods.getUpshelfTime());
         goodsEs.setStatus(goods.getStatus());
+        if(goods.getIsMs() == null)
+            goods.setIsMs(0);
         if(goods.getStatus() == null)
             goodsEs.setStatus(0);
         System.out.println("goodsEs"+ JSON.toJSONString(goodsEs)) ;
@@ -114,10 +139,16 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
     public List<Goods> fuzzyQueryGoodsNamePage(String goodsName, Integer page, Integer pageSize) {
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dateString = formatter.format(date);
         // 构建查询条件
         NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder();
-        // 添加基本分词查询
-        queryBuilder.withQuery(QueryBuilders.termQuery("goodsName", goodsName));
+        // 添加模糊查询
+        queryBuilder.withQuery(QueryBuilders.fuzzyQuery("goods_name", goodsName));
+        queryBuilder.withQuery(QueryBuilders.rangeQuery("upshelf_time").lt(dateString));
+        queryBuilder.withQuery(QueryBuilders.rangeQuery("downshelf_time").gt(dateString));
+//        queryBuilder.withQuery(QueryBuilders.rangeQuery("goods_name", goodsName));
         //排序id
         queryBuilder.withSort(SortBuilders.fieldSort("id").order(SortOrder.ASC));
 
@@ -135,7 +166,11 @@ public class GoodsServiceImpl implements GoodsService {
             idList.add(item.getId());
         }
         if(idList.isEmpty())
-            return null;
+        {
+            List<Goods> emptyList = new ArrayList<Goods>();
+            return emptyList;
+        }
+
         return goodsDao.batchGetGoodsByIdList(idList);
     }
 
