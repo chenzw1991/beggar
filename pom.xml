@@ -4,7 +4,7 @@
     <groupId>com.iggadmin</groupId>
     <artifactId>iggadmin-demo</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0.RELEASE</version>
+    <version>1.0.1.RELEASE</version>
     <name>iggadmin-demo</name>
 
     <properties>
