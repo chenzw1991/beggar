@@ -107,6 +107,27 @@
 
     }
 
+    function changeStatus(id, flag) {
+        console.log(id);
+        console.log(status);
+        status = flag == 1 ? 0 : 1;
+        msgAdd = flag == 1 ? "下架" : "上架";
+        if (!confirm("确定"+msgAdd+"吗？"))
+            return false;
+        $.ajax({
+            url		: "/goods/shelf/" + id + "/" + status,
+            type	: "get",
+            success: function (res) {
+                console.log(res);
+                if(res.code == 200){
+                    window.location.reload();
+                }else{
+                    alert(res.msg);
+                }
+            }
+        });
+    }
+
     layui.use('element', function(){
         var element = layui.element;
 

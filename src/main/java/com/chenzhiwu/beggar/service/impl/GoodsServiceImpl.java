@@ -53,7 +53,7 @@ public class GoodsServiceImpl implements GoodsService {
     @Autowired
     private MiaoshaGoodsDao miaoshaGoodsDao;
 
-    @Transactional
+//    @Transactional
 //    @CachePut(value = "redisCache", key = "'goodspage_'+#skip+'_'+#take")
     public List<Goods> getGoodsPage(Integer skip, Integer take){
 //        Date nowTime = new Date();
@@ -74,9 +74,9 @@ public class GoodsServiceImpl implements GoodsService {
             @Override
             public  Predicate toPredicate(Root<Goods> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicates = new ArrayList<>();// 查询条件
-                Date date = new Date();
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("downshelfTime").as(Date.class), date));
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("upshelfTime").as(Date.class), date));
+//                Date date = new Date();
+//                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("downshelfTime").as(Date.class), date));
+//                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("upshelfTime").as(Date.class), date));
 
                 return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
             }
@@ -109,7 +109,7 @@ public class GoodsServiceImpl implements GoodsService {
         return list;
     }
 
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     public void saveGoods(Goods goods) {
         goodsDao.saveAndFlush(goods);
         GoodsEs goodsEs = new GoodsEs();
@@ -129,16 +129,22 @@ public class GoodsServiceImpl implements GoodsService {
         return;
     }
 
-
+    @Transactional(rollbackOn = Exception.class)
     public void deleteGoods(Long id) {
+        Goods goods = goodsDao.getGoodsById(id);
+        if(goods.getIsMs() > 0) {
+            miaoshaGoodsDao.delMsInfoByGoodId(id);
+        }
         goodsDao.deleteById(id);
         goodsEsDao.deleteById(id);
     }
 
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     public OrderInfo buyGoods(BeggarUser beggarUser, Goods goods) {
         //减库存
+        System.out.println("goodsId:" + goods.getId());
         goodsDao.reduceStock(goods.getId());
+        System.out.println("goodsId:" + goods.getId() + "reduceStock ok！！！！！");
         //生成订单
         return orderService.createOrder(beggarUser, goods);
     }
@@ -190,6 +196,7 @@ public class GoodsServiceImpl implements GoodsService {
         return goodsDao.batchGetGoodsByIdList(idList);
     }
 
+    @Transactional(rollbackOn = Exception.class)
     public void updateShelfTime(Long id, Date upshelfTime, Date downshelfTime) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         goodsDao.updateShelfTime(id, formatter.format(upshelfTime), formatter.format(downshelfTime));
@@ -204,6 +211,7 @@ public class GoodsServiceImpl implements GoodsService {
         return miaoshaGoodsDao.getMsInfoByGoodId(goodId);
     }
 
+    @Transactional(rollbackOn = Exception.class)
     public void saveMsGoods(MiaoshaGoods miaoshaGoods) {
         Goods goods = goodsDao.getGoodsById(miaoshaGoods.getGoodsId());
         goods.setIsMs(1);
@@ -213,6 +221,7 @@ public class GoodsServiceImpl implements GoodsService {
         return;
     }
 
+    @Transactional(rollbackOn = Exception.class)
     public void delMsInfoByGoodId(Long goodId) {
         Goods goods = goodsDao.getGoodsById(goodId);
         goods.setIsMs(0);

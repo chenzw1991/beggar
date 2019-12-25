@@ -361,7 +361,7 @@ public class GoodsController {
     @GetMapping("/msdel/{goodsId}")
     @ResponseBody
     public ResultVo goodsMsDel(@PathVariable("goodsId") Long goodsId) {
-        goodsService.deleteGoods(goodsId);
+        goodsService.delMsInfoByGoodId(goodsId);
         return ResultVoUtil.SAVE_SUCCESS;
     }
 

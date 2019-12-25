@@ -72,27 +72,27 @@
 </div>
 
 <script th:inline="javascript">
-    $(function(){
-        $("#uppage").on("click",function(event){
+    $(function() {
+        $("#uppage").on("click", function (event) {
             event.preventDefault();//使a自带的方法失效
             $.ajax({
-                url:"/goods/fuzzyQuery",
-                type:"post",
-                dataType:"json",
-                data:{},
-            success:function(result){
-                if(res.code == 200){
-                    window.parent.location.reload();
-                }else{
-                    alert(res.msg);
+                url: "/goods/fuzzyQuery",
+                type: "post",
+                dataType: "json",
+                data: {},
+                success: function (result) {
+                    if (res.code == 200) {
+                        window.parent.location.reload();
+                    } else {
+                        alert(res.msg);
+                    }
+                },
+                error: function () {
+                    alert("error!");
                 }
-            },
-            error:function(){
-                alert("error!");
-            }
+            });
         });
     });
-
 </script>
 
 </body>

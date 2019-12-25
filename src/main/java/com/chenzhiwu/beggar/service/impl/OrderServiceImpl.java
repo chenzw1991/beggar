@@ -32,8 +32,10 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderDao orderDao;
 
+    @Autowired
     private MiaoshaGoodsDao miaoshaGoodsDao;
 
+    @Transactional(rollbackOn = Exception.class)
     public void saveOrderInfo(OrderInfo orderInfo){
         orderDao.save(orderInfo);
         return;
@@ -66,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
      * @param goods
      * @return
      */
-    @Transactional
+    @Transactional(rollbackOn = Exception.class)
     public OrderInfo createOrder(BeggarUser beggarUser, Goods goods) {
         Date date = new Date();
         //1.生成order_info
@@ -79,7 +81,9 @@ public class OrderServiceImpl implements OrderService {
         //价格
         orderInfo.setGoodsPrice(goods.getGoodsPrice());
         if(goods.getIsMs() != null && goods.getIsMs() > 0) {
+            System.out.println("get ms goodinfo:" + goods.getId());
             MiaoshaGoods miaoshaGoods = miaoshaGoodsDao.getMsInfoByGoodId(goods.getId());
+            System.out.println("get ms goodinfo:" + goods.getId() + "ok...........");
             if(miaoshaGoods.getEndDate().after(date) && miaoshaGoods.getStartDate().before(date))
                 orderInfo.setGoodsPrice(goods.getMsGoodsPrice());
         }
