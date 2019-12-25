@@ -64,10 +64,10 @@
                 </tbody>
             </table>
         </div>
-        <div th:replace="/common/fragment :: page"></div>
+        <div th:replace="common/fragment :: page"></div>
     </div>
 </div>
-<script th:replace="/common/template :: script"></script>
+<script th:replace="common/template :: script"></script>
 <script type="text/javascript" th:src="@{/js/plugins/jquery-3.3.1.min.js}"></script>
 <script>
     function dataDelete(id) {
