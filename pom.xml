@@ -11,7 +11,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!--shiro权限管理框架版本：component.shiro -->
-        <shiro.version>1.4.0</shiro.version>
+        <shiro.version>1.7.1</shiro.version>
         <lombok.version>1.18.2</lombok.version>
         <ehcache.version>2.10.5</ehcache.version>
         <mysql.connector.version>5.1.46</mysql.connector.version>
